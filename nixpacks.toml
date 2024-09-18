@@ -1,0 +1,11 @@
+[build]
+systemPackages = [
+  "libgl1-mesa-glx",
+  "libglib2.0-0"
+]
+
+[python]
+version = "3.11"
+
+[scripts]
+start = "python main.py"
