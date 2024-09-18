@@ -1,0 +1,1 @@
+{"roles": {"admin": 1284626459037663234, "moderator": 876543210987654321}, "permissions": {"setup_accessing": ["admin"], "view_users_activity": ["admin", "moderator"], "view_users_salary": ["admin", "moderator"], "view_users_history": ["admin", "moderator"], "nicknames_control": ["admin", "moderator"]}, "admin_user_ids": []}

@@ -1,0 +1,50 @@
+{
+  "DiscordBot": {
+
+    "GUILD_ID": 1279150958084886528
+  },
+  "Database": {
+    "name": "contentdb",
+    "username": "postgres",
+    "password": "8080",
+    "port": "5432"
+  },
+  "ArcheAge": {
+    "server_id": "49",
+    "union_id": "114",
+    "guilds": [
+      "Literally Pigs",
+      "abobus"
+    ]
+  },
+  "SCREENSHOTS_OCR": {
+    "LANGUAGES": [
+      "ru",
+      "en"
+    ],
+    "MODE_BOUND": [560, 300],
+    "IMAGE_ENCHANTER": {
+      "fast": {
+        "model": "espcn",
+        "model_path": "utilities/ai-models/ESPCN_x2.pb",
+        "scale": 2
+      },
+      "slow": {
+        "model": "edsr",
+        "model_path": "utilities/ai-models/EDSR_x2.pb",
+        "scale": 2
+      }
+    },
+    "IO": {
+      "input_image_directory_path": "meta/uploaded_screenshots",
+      "input_image_file_name": "uploaded_image.png",
+      "output_image_directory_path": "meta/processed_screenshots",
+      "output_image_file_name": "enchanted_image.png"
+    }
+  },
+  "SLASH_COMMANDS": {
+    "IsResponsesEphemeral": true,
+    "DeleteAfter": 5,
+    "Timeout": 900
+  }
+}

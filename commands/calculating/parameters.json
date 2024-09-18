@@ -1,0 +1,37 @@
+{
+  "SALARY":
+  {
+    "WAR_LOCATION_BOSS_0": 650,
+    "WAR_LOCATION_BOSS_1": 1300,
+
+    "WAR_LOCATION_T2_BOSS_0": 7000,
+    "WAR_LOCATION_T2_BOSS_1": 2600,
+    "WAR_LOCATION_T2_BOSS_2": 2600
+  },
+  "BANK":
+  {
+    "Percentage": 0.5
+  },
+  "BOSS_TYPES":
+  {
+    "WAR_LOCATION":
+    [
+
+    ],
+    "RAID":
+    [
+
+    ],
+    "OTHER":
+    [
+
+    ]
+  },
+  "BOSSES_ACTIVITY":
+  [
+    "RAID_BOSS_2",
+    "RAID_BOSS_3",
+    "RAID_BOSS_4",
+    "RAID_T2_BOSS_1"
+  ]
+}
