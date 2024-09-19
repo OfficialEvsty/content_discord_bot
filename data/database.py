@@ -21,6 +21,7 @@ class Database:
             f'postgresql+psycopg2://{db_config["username"]}:{db_config["password"]}@localhost:{db_config["port"]}/postgres'
         self.sync_engine = create_engine(self.connection_string)
         self.async_engine = None
+        self.async_session = None
         # Создаем фабрику сессий для асинхронной работы с базой данных
 
 
