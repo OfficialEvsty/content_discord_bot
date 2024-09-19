@@ -21,6 +21,7 @@ class Database:
         self.config = db_config
         self.connection_string = \
             f'postgresql+psycopg2://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PG_DATABASE")}'
+        print(self.connection_string)
         self.sync_engine = create_engine(self.connection_string)
         self.async_engine = None
         self.async_session = None
@@ -77,6 +78,7 @@ class Database:
         except SQLAlchemyError as e:
             print(f"Произошла ошибка при инициализации базы данных: {e}")
         self.connection_string = f'postgresql+asyncpg://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PG_DATABASE")}'
+        print(self.connection_string)
         self.async_engine = create_async_engine(self.connection_string)
         self.async_session = sessionmaker(
             bind=self.async_engine,
