@@ -20,7 +20,7 @@ class Database:
         self.name = db_config["name"]
         self.config = db_config
         self.connection_string = \
-            f'postgresql+psycopg2://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/postgres'
+            f'postgresql+psycopg2://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PG_DATABASE")}'
         self.sync_engine = create_engine(self.connection_string)
         self.async_engine = None
         self.async_session = None
@@ -42,32 +42,32 @@ class Database:
 
 
 
-    def is_db_exist(self):
-        exists = False
-        try:
-            with self.sync_engine.connect() as conn:
-                query = text("SELECT 1 FROM pg_database WHERE datname = :db_name")
-                result = conn.execute(query, {'db_name': self.name})
-                exists = result.scalar() is not None
-        except SQLAlchemyError:
-            exists = False
-        return exists
+    # def is_db_exist(self):
+    #     exists = False
+    #     try:
+    #         with self.sync_engine.connect() as conn:
+    #             query = text("SELECT 1 FROM pg_database WHERE datname = :db_name")
+    #             result = conn.execute(query, {'db_name': self.name})
+    #             exists = result.scalar() is not None
+    #     except SQLAlchemyError:
+    #         exists = False
+    #     return exists
 
     def init_db(self):
-        if not self.is_db_exist():
-            with self.sync_engine.connect() as conn:
-                try:
-                    conn.execute(text("COMMIT"))  # Ensure there are no open transactions
-                    conn.execute(text(f"CREATE DATABASE {self.name}"))
-                    print(f"База данных {self.name} создана")
-                except SQLAlchemyError as e:
-                    conn.execute(text("ROLLBACK"))
-                    print(f"Произошла ошибка во время создания базы данных: {e}")
-
-            # Обновляем строку подключения для работы с новой базой данных
-            self.connection_string = \
-                f'postgresql+psycopg2://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{self.name}'
-            self.sync_engine = create_engine(self.connection_string, echo=True)
+        # if not self.is_db_exist():
+        #     with self.sync_engine.connect() as conn:
+        #         try:
+        #             conn.execute(text("COMMIT"))  # Ensure there are no open transactions
+        #             conn.execute(text(f"CREATE DATABASE {self.name}"))
+        #             print(f"База данных {self.name} создана")
+        #         except SQLAlchemyError as e:
+        #             conn.execute(text("ROLLBACK"))
+        #             print(f"Произошла ошибка во время создания базы данных: {e}")
+        #
+        #     # Обновляем строку подключения для работы с новой базой данных
+        #     self.connection_string = \
+        #         f'postgresql+psycopg2://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PG_DATABASE")}'
+        #     self.sync_engine = create_engine(self.connection_string, echo=True)
 
         # Используем синхронный контекст для создания таблиц
         try:
@@ -76,7 +76,7 @@ class Database:
             print("Таблицы инициализированы")
         except SQLAlchemyError as e:
             print(f"Произошла ошибка при инициализации базы данных: {e}")
-        self.connection_string = f'postgresql+asyncpg://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{self.name}'
+        self.connection_string = f'postgresql+asyncpg://{os.getenv("PGUSER")}:{os.getenv("PGPASSWORD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PG_DATABASE")}'
         self.async_engine = create_async_engine(self.connection_string)
         self.async_session = sessionmaker(
             bind=self.async_engine,
