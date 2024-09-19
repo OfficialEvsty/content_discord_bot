@@ -177,8 +177,8 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 
 bot.startup()
 
-
-bot.run("MTI3OTE0Nzk1MjA3NzY3MjU1MA.GsrZwY.NDcmOrK21SD7bf4pqGCin1JCJY_BtoaeWrsofM")
+token = CONFIGURATION['DiscordBot']['TOKEN']
+bot.run(token)
 
 
 
