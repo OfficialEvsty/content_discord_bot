@@ -1,6 +1,6 @@
 
 from typing import List
-import logging
+
 import discord
 from discord.app_commands import describe
 
@@ -178,7 +178,7 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 bot.startup()
 
 
-bot.run(os.getenv('TOKEN'))
+bot.run("MTI3OTE0Nzk1MjA3NzY3MjU1MA.GsrZwY.NDcmOrK21SD7bf4pqGCin1JCJY_BtoaeWrsofM")
 
 
 
