@@ -10,12 +10,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Копирование файлов проекта
-COPY . .
+COPY requirements.txt .
 
 # Установка зависимостей
 RUN python -m venv venv \
     && . venv/bin/activate \
     && pip install -r requirements.txt
+
+COPY . .
 
 # Запуск приложения
 CMD ["python", "main.py"]
