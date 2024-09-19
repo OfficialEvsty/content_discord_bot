@@ -1,11 +1,5 @@
-[build]
-systemPackages = [
-  "libgl1-mesa-glx",
-  "libglib2.0-0"
-]
+[phases.setup]
+apt_pkgs = ["python3", "python3-pip", "libgl1-mesa-glx"]
 
-[python]
-version = "3.11"
-
-[scripts]
-start = "python main.py"
+[phases.build]
+commands = ["pip install -r requirements.txt"]
