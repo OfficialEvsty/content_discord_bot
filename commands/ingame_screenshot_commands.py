@@ -22,41 +22,48 @@ import logging
 logger = logging.getLogger("app.commands")
 
 async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attachment: discord.Attachment, session, ocr_config) -> List[List[str]]:
-    current_progress_bar = await get_progress_bar(interaction, None,0)
-    input_file_path = os.path.join(ocr_config['IO']['input_image_directory_path'], ocr_config['IO']['input_image_file_name'])
-    if attachment.content_type.startswith("image"):
-        await save_attachment(attachment, input_file_path)
-    else:
-        logger.info("Прикрепленный файл не является изображением")
-        return interaction.followup.send("Прикрепленный файл не является изображением, прикрепите изображение в формате `.png`")
+    try:
+        current_progress_bar = await get_progress_bar(interaction, None,0)
+        input_file_path = os.path.join(ocr_config['IO']['input_image_directory_path'], ocr_config['IO']['input_image_file_name'])
+        if attachment.content_type.startswith("image"):
+            await save_attachment(attachment, input_file_path)
+        else:
+            logger.info("Прикрепленный файл не является изображением")
+            return interaction.followup.send("Прикрепленный файл не является изображением, прикрепите изображение в формате `.png`")
 
-    await get_progress_bar(interaction, current_progress_bar, 1)
-    output_filepath = os.path.join(ocr_config['IO']['output_image_directory_path'], ocr_config['IO']['output_image_file_name'])
-    enchanter_mode = 'fast' if attachment.width > ocr_config['MODE_BOUND'][0] and attachment.height > ocr_config['MODE_BOUND'][1] else 'slow'
-    enchanter = ocr_config['IMAGE_ENCHANTER'][enchanter_mode]
-    await enchant_image(input_file_path, enchanter['model'], enchanter['model_path'], enchanter['scale'], output_filepath)
-    await get_progress_bar(interaction, current_progress_bar, 2)
+        await get_progress_bar(interaction, current_progress_bar, 1)
+        output_filepath = os.path.join(ocr_config['IO']['output_image_directory_path'], ocr_config['IO']['output_image_file_name'])
+        enchanter_mode = 'fast' if attachment.width > ocr_config['MODE_BOUND'][0] and attachment.height > ocr_config['MODE_BOUND'][1] else 'slow'
+        enchanter = ocr_config['IMAGE_ENCHANTER'][enchanter_mode]
+        await enchant_image(input_file_path, enchanter['model'], enchanter['model_path'], enchanter['scale'], output_filepath)
+        await get_progress_bar(interaction, current_progress_bar, 2)
 
-    completed_nicknames = None
+        completed_nicknames = None
 
-    service = NicknameService(session)
-    result = await service.get_nicknames(interaction.guild.id)
-    existing_nicknames = [] if result is None else [nickname.name for nickname in result]
-    await get_progress_bar(interaction, current_progress_bar, 3)
-    visited_nicknames_with_collisions =  await recognize_nicknames_on_image(ocr_config["LANGUAGES"], output_filepath, existing_nicknames)
-    await get_progress_bar(interaction, current_progress_bar, 5)
-    await current_progress_bar.delete()
-    choices = await resolve_merge_conflicted_nicknames(interaction, visited_nicknames_with_collisions)
-    nicknames_without_conflict = eliminate_collisions(visited_nicknames_with_collisions, choices)
-    table_names = await create_table_names(nicknames_without_conflict)
-    manual_choices = await is_manual_needed(interaction, list(set(existing_nicknames) ^ set(nicknames_without_conflict)), table_names)
-    nicknames_without_conflict.extend(manual_choices)
-    completed_nicknames = nicknames_without_conflict
+        service = NicknameService(session)
+        result = await service.get_nicknames(interaction.guild.id)
+        existing_nicknames = [] if result is None else [nickname.name for nickname in result]
+        await get_progress_bar(interaction, current_progress_bar, 3)
+        visited_nicknames_with_collisions =  await recognize_nicknames_on_image(ocr_config["LANGUAGES"], output_filepath, existing_nicknames)
+        await get_progress_bar(interaction, current_progress_bar, 5)
+        await current_progress_bar.delete()
+        choices = await resolve_merge_conflicted_nicknames(interaction, visited_nicknames_with_collisions)
+        nicknames_without_conflict = eliminate_collisions(visited_nicknames_with_collisions, choices)
+        table_names = await create_table_names(nicknames_without_conflict)
+        manual_choices = await is_manual_needed(interaction, list(set(existing_nicknames) ^ set(nicknames_without_conflict)), table_names)
+        nicknames_without_conflict.extend(manual_choices)
+        completed_nicknames = nicknames_without_conflict
 
 
-    await screenshots_cleaning(ocr_config['IO']['output_image_directory_path'])
-    await screenshots_cleaning(ocr_config['IO']['input_image_directory_path'])
-    return [completed_nicknames, choices, manual_choices]
+        await screenshots_cleaning(ocr_config['IO']['output_image_directory_path'])
+        await screenshots_cleaning(ocr_config['IO']['input_image_directory_path'])
+        return [completed_nicknames, choices, manual_choices]
+    except Exception as e:
+        logger.error(f"Ошибка в {pull_nicknames_from_screenshot}: {e}")
+
+        await screenshots_cleaning(ocr_config['IO']['output_image_directory_path'])
+        await screenshots_cleaning(ocr_config['IO']['input_image_directory_path'])
+        raise Exception(e)
 
 async def resolve_merge_conflicted_nicknames(interaction: discord.Interaction, nicknames: [[[]]]):
     choices = []
