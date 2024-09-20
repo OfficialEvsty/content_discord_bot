@@ -6,6 +6,9 @@ import cv2
 import discord
 import easyocr
 import re
+
+import numpy as np
+
 from utilities.ingame_entities import ATag
 import logging
 
@@ -30,9 +33,12 @@ def clean_and_split(data):
     return cleaned
 
 # Upscaling image with AI
-async def enchant_image(file_path, model_type, model_path, scale, output_filename_path):
+async def enchant_image(image_stream, model_type, model_path, scale):
     try:
-        img = cv2.imread(file_path)
+        # Чтение изображения с помощью OpenCV
+        image_array = np.frombuffer(image_stream.getvalue(), dtype=np.uint8)
+        img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
         # Создаём sr-объект
         sr = cv2.dnn_superres.DnnSuperResImpl_create()
         # Считываем модель
@@ -46,16 +52,18 @@ async def enchant_image(file_path, model_type, model_path, scale, output_filenam
         result = sr.upsample(img)
 
         # Сохраняем
-        cv2.imwrite(output_filename_path, result)
+        #cv2.imwrite(output_filename_path, result)
+
         logger.info(
-            f"Качество файла {file_path} было улучшено при помощи ИИ-модели {model_type} с scale {scale}")
+            f"Качество файла {img} было улучшено при помощи ИИ-модели {model_type} с scale {scale}")
+        return result
     except Exception as e:
-        logger.error(f"Ошибка при попытке улучшить качество изображения {file_path} при помощи ИИ-модели {model_type} с scale {scale}: {e}")
+        logger.error(f"Ошибка при попытке улучшить качество изображения {img} при помощи ИИ-модели {model_type} с scale {scale}: {e}")
 
 
-async def recognize_nicknames_on_image(lang_list, image_to_recognize_path, nicknames):
+async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames):
     reader = easyocr.Reader(lang_list)
-    data = reader.readtext(image_to_recognize_path)
+    data = reader.readtext(image_to_recognize)
 
     similar_letters = None
     with open("utilities/similar_letters.json", encoding='utf-8') as file:
@@ -77,7 +85,7 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize_path, nickn
             occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
 
         if len(occurrences) > 0:
-            visited_members.append([occurrences, get_nickname_box_image(image_to_recognize_path, bbox)])
+            visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
 
     # Отдельно обработать n колизии с n совпадающими никами
     for i in range(len(visited_members)):
