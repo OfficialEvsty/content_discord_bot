@@ -61,7 +61,11 @@ async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attac
             choices = await resolve_merge_conflicted_nicknames(interaction, visited_nicknames_with_collisions)
             nicknames_without_conflict = eliminate_collisions(visited_nicknames_with_collisions, choices)
             table_names = await create_table_names(nicknames_without_conflict)
-            manual_choices = await is_manual_needed(interaction, list(set(existing_nicknames) ^ set(nicknames_without_conflict)), table_names)
+            print(f"existing names:{existing_nicknames}\nnicks:{nicknames_without_conflict}")
+            availables = list(set(existing_nicknames) ^ set(nicknames_without_conflict))
+            manual_choices = []
+            if len(availables) > 0:
+                manual_choices = await is_manual_needed(interaction, availables, table_names)
             nicknames_without_conflict.extend(manual_choices)
             completed_nicknames = nicknames_without_conflict
 

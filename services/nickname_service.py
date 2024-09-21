@@ -68,6 +68,7 @@ class NicknameService:
                 )
             ))
             nicknames = result.scalars().all()
+            print(f"никнеймы из бд: {nicknames}")
             return nicknames
         except Exception as e:
             logger.error(f"Ошибка при попытке получить доступные никнеймы: {e}")
