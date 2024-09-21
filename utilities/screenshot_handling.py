@@ -33,11 +33,9 @@ def clean_and_split(data):
     return cleaned
 
 # Upscaling image with AI
-async def enchant_image(image_stream, model_type, model_path, scale):
+async def enchant_image(image_path, model_type, model_path, scale, image_output_path):
     try:
-        # Чтение изображения с помощью OpenCV
-        image_array = np.frombuffer(image_stream.getvalue(), dtype=np.uint8)
-        img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        img = cv2.imread(image_path)
 
         # Создаём sr-объект
         sr = cv2.dnn_superres.DnnSuperResImpl_create()
@@ -52,11 +50,10 @@ async def enchant_image(image_stream, model_type, model_path, scale):
         result = sr.upsample(img)
 
         # Сохраняем
-        #cv2.imwrite(output_filename_path, result)
+        cv2.imwrite(image_output_path, result)
 
         logger.info(
             f"Качество файла {img} было улучшено при помощи ИИ-модели {model_type} с scale {scale}")
-        return result
     except Exception as e:
         logger.error(f"Ошибка при попытке улучшить качество изображения {img} при помощи ИИ-модели {model_type} с scale {scale}: {e}")
 
