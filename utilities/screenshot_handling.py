@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import uuid
 
 import cv2
@@ -59,6 +60,11 @@ async def enchant_image(image_path, model_type, model_path, scale, image_output_
 
 
 async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames):
+    directory_path = "/app/images"  # Измените на ваш путь
+
+    # Получаем список файлов и папок
+    files = os.listdir(directory_path)
+    print(f"Файлы в: {directory_path}")
     reader = easyocr.Reader(lang_list)
     data = reader.readtext(image_to_recognize)
 
