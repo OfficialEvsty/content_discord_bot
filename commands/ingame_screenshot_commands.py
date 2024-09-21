@@ -23,7 +23,7 @@ import logging
 
 logger = logging.getLogger("app.commands")
 
-async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attachment: discord.Attachment, session, ocr_config) -> List[List[str]]:
+async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attachment: discord.Attachment, db_session, ocr_config) -> List[List[str]]:
     try:
         current_progress_bar = await get_progress_bar(interaction, None,0)
         #input_file_path = os.path.join(ocr_config['IO']['input_image_directory_path'], ocr_config['IO']['input_image_file_name'])
@@ -51,7 +51,7 @@ async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attac
 
             completed_nicknames = None
 
-            service = NicknameService(session)
+            service = NicknameService(db_session)
             result = await service.get_nicknames(interaction.guild.id)
             existing_nicknames = [] if result is None else [nickname.name for nickname in result]
             await get_progress_bar(interaction, current_progress_bar, 3)
@@ -61,7 +61,6 @@ async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attac
             choices = await resolve_merge_conflicted_nicknames(interaction, visited_nicknames_with_collisions)
             nicknames_without_conflict = eliminate_collisions(visited_nicknames_with_collisions, choices)
             table_names = await create_table_names(nicknames_without_conflict)
-            print(f"existing names:{existing_nicknames}\nnicks:{nicknames_without_conflict}")
             availables = list(set(existing_nicknames) ^ set(nicknames_without_conflict))
             manual_choices = []
             if len(availables) > 0:
