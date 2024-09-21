@@ -28,10 +28,10 @@ async def pull_nicknames_from_screenshot(interaction: discord.Interaction, attac
         current_progress_bar = await get_progress_bar(interaction, None,0)
         input_file_path = os.path.join(ocr_config['IO']['input_image_directory_path'], ocr_config['IO']['input_image_file_name'])
         if not attachment.content_type.startswith("image"):
-            await save_attachment(attachment, input_file_path)
             logger.info("Прикрепленный файл не является изображением")
             return interaction.followup.send("Прикрепленный файл не является изображением, прикрепите изображение в формате `.png`")
 
+        await save_attachment(attachment, input_file_path)
         await get_progress_bar(interaction, current_progress_bar, 1)
         output_filepath = os.path.join(ocr_config['IO']['output_image_directory_path'], ocr_config['IO']['output_image_file_name'])
         enchanter_mode = 'fast' if attachment.width > ocr_config['MODE_BOUND'][0] and attachment.height > ocr_config['MODE_BOUND'][1] else 'slow'
