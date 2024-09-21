@@ -17,6 +17,8 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+# Создаем директорию для загрузки и хранения изображений
+RUN mkdir -p /app/images
 
 # Copy the rest of the application code
 COPY . .

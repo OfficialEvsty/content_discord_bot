@@ -36,9 +36,9 @@
       }
     },
     "IO": {
-      "input_image_directory_path": "/tmp",
+      "input_image_directory_path": "/app/images",
       "input_image_file_name": "uploaded_image.png",
-      "output_image_directory_path": "/tmp",
+      "output_image_directory_path": "/app/images",
       "output_image_file_name": "enchanted_image.png"
     }
   },
