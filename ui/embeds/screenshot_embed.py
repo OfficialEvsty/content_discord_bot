@@ -6,9 +6,11 @@ class RedirectedScreenshotEmbed(discord.Embed):
         super().__init__(title=f"РЕЙД НА: ***{event_name}***", description=f"Размер рейда: `{size}`", timestamp=datetime)
         if collisions is not None:
             if len(collisions) > 0:
-                self.add_field(name=f'Коллизии `{len(collisions)}`', value='```'+'\n'.join(collisions) + '```', inline=True)
+                self.add_field(name=f'Коллизии `{len(collisions)}`', value='```\n'+'\n'.join(collisions) + '```', inline=True)
+                print(collisions)
         if manual is not None:
             if len(manual) > 0:
-                self.add_field(name=f'Ручной ввод: `{len(manual)}`', value='```' + '\n'.join(manual) + '```')
+                self.add_field(name=f'Ручной ввод: `{len(manual)}`', value='```\n' + '\n'.join(manual) + '```')
+                print(manual)
         self.set_image(url=image_url)
         self.set_footer(text=f"Предоставил(а) {author}", icon_url=icon_url)
