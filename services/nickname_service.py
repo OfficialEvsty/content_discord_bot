@@ -33,11 +33,7 @@ class NicknameService:
 
         # Добавляем или обновляем пользователей
         for nickname in nicknames:
-            if nickname in existing_nicknames:
-                logger.debug(f"{nickname} уже существует в БД")
-                # Здесь можно обновить поля существующего пользователя
-                existing_nicknames[nickname].nickname = nickname  # Пример обновления
-            else:
+            if nickname not in existing_nicknames:
                 logger.debug(f"Добавляем новый ник: {nickname} на сервере guid: {guid}")
                 new_nick = Nickname(guid=guid, name=nickname, is_borrowed=False, is_archived=False)
                 self.session.add(new_nick)
