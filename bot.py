@@ -25,7 +25,7 @@ class Bot(discord.Client):
         await self.wait_until_ready()  # Ждем, пока бот полностью запустится
         if not self.is_closed():
             try:
-                guids = self.config["DiscordBot"]["GUILD_ID"]
+                guids = self.config["DiscordBot"]["GUILD_IDS"]
                 for guid in guids:
                     await commands.nickname_commands.add_nicknames(guid, self.db.get_session(), self.config['ArcheAge'])
             except Exception as e:
