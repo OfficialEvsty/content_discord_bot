@@ -35,7 +35,9 @@ def setup_logging(config_file='logging.yaml'):
 
 
 setup_logging()
+available_guilds = [discord.Object(id=guild_id) for guild_id in CONFIGURATION['DiscordBot']['GUILD_IDS']]
 bot = Bot(CONFIGURATION)
+
 
 
 async def events_autocomplete(
@@ -70,7 +72,8 @@ async def available_nicknames_autocomplete(
        ][:25]
 
 
-@bot.tree.command(name="скриншот_посещаемости", description="Загрузить скриншот рейда")
+@bot.tree.command(name="скриншот_посещаемости", description="Загрузить скриншот рейда",
+                  guilds=available_guilds)
 @describe(attachment="Скриншот посещаемости")
 async def upload_image_tree(interaction: discord.Interaction, attachment: discord.Attachment):
     try:
@@ -92,7 +95,8 @@ async def upload_image_tree(interaction: discord.Interaction, attachment: discor
         pass
 
 
-@bot.tree.command(name="настроить_адрессацию", description="Выбрать текстовые каналы и роли доступа")
+@bot.tree.command(name="настроить_адрессацию", description="Выбрать текстовые каналы и роли доступа",
+                  guilds=available_guilds)
 @describe(redirect_channel="Текстовой канал для переадрессации", request_channel="Текстовой канал для пользовательских запросов")
 async def set_settings(interaction: discord.Interaction, redirect_channel: discord.TextChannel,
                        request_channel: discord.TextChannel)  :
@@ -113,7 +117,8 @@ async def set_settings(interaction: discord.Interaction, redirect_channel: disco
 
 
 
-@bot.tree.command(name="панель", description="Панель управления бота")
+@bot.tree.command(name="панель", description="Панель управления бота",
+                  guilds=available_guilds)
 async def manage_panel(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     if not user_has_permission(interaction.guild.get_member(interaction.user.id), "view_users_activity"):
@@ -127,7 +132,8 @@ async def manage_panel(interaction: discord.Interaction):
 
 
 @discord.app_commands.autocomplete(nickname=available_nicknames_autocomplete)
-@bot.tree.command(name="привязать_ник", description="Отправить запрос на привязку никнейма в Archeage")
+@bot.tree.command(name="привязать_ник", description="Отправить запрос на привязку никнейма в Archeage",
+                  guilds=available_guilds)
 async def bound_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer()
     guid = interaction.guild.id
@@ -148,7 +154,8 @@ async def bound_nickname(interaction: discord.Interaction, nickname: str):
 
 
 
-@bot.tree.command(name="настройка_доступов", description="Настройка доступов")
+@bot.tree.command(name="настройка_доступов", description="Настройка доступов",
+                  guilds=available_guilds)
 async def edit_roles(interaction: discord.Interaction, admin: discord.Role, moder: discord.Role = None):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     if not user_has_permission(interaction.guild.get_member(interaction.user.id), "setup_accessing"):

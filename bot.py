@@ -7,6 +7,7 @@ from discord.ext import tasks
 import commands.nickname_commands
 import logging
 
+from data.configuration import CONFIGURATION
 from data.database import Database
 
 class Bot(discord.Client):
@@ -40,9 +41,10 @@ class Bot(discord.Client):
             self.db.init_db()
             await self.wait_until_ready()
             if not self.synced:
-                guild = discord.Object(id=1279150958084886528)
-                await self.tree.sync(guild=guild)
-                print("Синхронизировалось")
+                for guild_id in self.config['DiscordBot']['GUILD_IDS']:
+                    guild = discord.Object(id=guild_id)
+                    await self.tree.sync(guild=guild)
+                    print(f"Синхронизация команд завершена для сервера {guild_id}")
                 self.synced = True
 
             if not self.pull_nicknames_task.is_running():  # Проверяем, что задача не запущена
