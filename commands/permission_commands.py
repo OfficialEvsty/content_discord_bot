@@ -10,10 +10,10 @@ logger = logging.getLogger("app.commands")
 async def set_permission_roles(session: AsyncSession, guid, admin_role_id, moder_role_id = None):
     try:
         result = await session.execute(select(PermissionRole).where(PermissionRole.guid == guid))
-        if len(result.scalars().all()) > 0:
-            existing_permission = result.scalars().first()
-            existing_permission.moder_role_id = admin_role_id
-            existing_permission.admin_role_id = moder_role_id
+        existing_permission = result.scalars().first()
+        if existing_permission:
+            existing_permission.moder_role_id = moder_role_id
+            existing_permission.admin_role_id = admin_role_id
         else:
             permission = PermissionRole(guid=guid, admin_role_id=admin_role_id, moder_role_id=moder_role_id)
             session.add(permission)
