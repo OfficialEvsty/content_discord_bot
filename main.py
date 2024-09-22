@@ -167,8 +167,8 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
         if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "setup_accessing"):
             return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
-        await set_permission_roles(session, interaction.guild.id, admin, moder)
-
+        await set_permission_roles(session, interaction.guild.id, admin.id, moder.id)
+        await session.close()
         none_str = "None"
         await auto_delete_webhook(interaction,f"Выбранным ролям выдан доступ: `admin-{admin}`, `moderator-{none_str if moder is None else moder}`", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except Exception as e:
