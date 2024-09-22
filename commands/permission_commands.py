@@ -7,7 +7,7 @@ from data.models.permission_role import PermissionRole
 
 logger = logging.getLogger("app.commands")
 
-async def set_permission_roles(session: AsyncSession, guid, admin_role_id, moder_role_id):
+async def set_permission_roles(session: AsyncSession, guid, admin_role_id, moder_role_id = None):
     try:
         result = await session.execute(select(PermissionRole).where(PermissionRole.guid == guid))
         if len(result.scalars().all()) > 0:
