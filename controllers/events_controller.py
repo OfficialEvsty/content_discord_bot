@@ -77,8 +77,9 @@ class EventAndActivityController:
     async def select_events(self, interaction: discord.Interaction) -> List[str]:
         events = []
         event_ask_view = EventSelectorView(events)
-        await interaction.followup.send(view=event_ask_view)
+        msg = await interaction.followup.send(view=event_ask_view)
         await event_ask_view.wait()
+        await msg.delete()
         if len(events) == 0:
             raise TimeoutException(f"Время ожидания {event_ask_view} вышло")
 

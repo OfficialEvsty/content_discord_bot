@@ -30,7 +30,7 @@ class EventSelectorView(CancelledView):
         await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         user = interaction.user
         guild = interaction.guild
-        self.events = self.selector.values
+        self.events.extend(self.selector.values)
         if len(self.events) == 0:
             content = f"Вы должны выбрать хотя бы одно событие"
             return await auto_delete_webhook(interaction, content, CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
