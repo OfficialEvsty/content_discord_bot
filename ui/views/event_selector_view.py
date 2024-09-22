@@ -3,8 +3,10 @@ import logging
 import discord
 from discord.ui import Button
 
+from data.configuration import CONFIGURATION
 from ui.elements.event_selector import EventSelector
 from ui.views.base_view import CancelledView
+from utilities.custom_slash import auto_delete_webhook
 
 logger = logging.getLogger("app.ui")
 
@@ -21,5 +23,9 @@ class EventSelectorView(CancelledView):
         user = interaction.user
         guild = interaction.guild
         self.events = self.selector.values
+        if len(self.events) == 0:
+            content = f"Вы должны выбрать хотя бы одно событие"
+            return await auto_delete_webhook(interaction, content, CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                      CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.stop()
         logger.info(f"Пользователь: {user.name} выбрал активности {self.events} на сервере {guild.name}")
