@@ -24,7 +24,7 @@ class NicknameService:
 
         # Ищем существующие записи с указанными никнеймами
         existing_nicks = await self.session.execute(
-            select(Nickname).filter(Nickname.name.in_(nicknames))
+            select(Nickname).filter(and_(Nickname.name.in_(nicknames), Nickname.guid==guid))
         )
         existing_nicks = existing_nicks.scalars().all()
 
