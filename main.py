@@ -70,17 +70,15 @@ async def available_nicknames_autocomplete(
        ][:25]
 
 
-@discord.app_commands.autocomplete(event_type=events_autocomplete)
 @bot.tree.command(name="скриншот_посещаемости", description="Загрузить скриншот рейда",
                   guild=discord.Object(id=bot.config["DiscordBot"]["GUILD_ID"]))
 @describe(attachment="Скриншот посещаемости")
-async def upload_image_tree(interaction: discord.Interaction, attachment: discord.Attachment,
-                            event_type: str):
+async def upload_image_tree(interaction: discord.Interaction, attachment: discord.Attachment):
     try:
         await interaction.response.defer(ephemeral=bot.config['SLASH_COMMANDS']['IsResponsesEphemeral'])
         session = bot.db.get_session()
         controller = EventAndActivityController()
-        event_dict = await controller.generate_event(interaction, session, attachment, bot.config, event_type)
+        event_dict = await controller.generate_event(interaction, session, attachment, bot.config)
 
         async for session in bot.db.get_session():
             channel_id = await get_redirect_channel_id(session, interaction.guild.id)

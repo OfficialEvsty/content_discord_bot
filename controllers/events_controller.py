@@ -20,7 +20,7 @@ logger = logging.getLogger("app.controllers")
 class EventAndActivityController:
 
     async def generate_event(self, interaction: discord.Interaction, session_generator, attachment: discord.Attachment,
-                            config, event_type: str):
+                            config):
         try:
             chosen_events = await self.select_events(interaction)
             events = []
