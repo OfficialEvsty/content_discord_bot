@@ -15,10 +15,16 @@ class EventSelectorView(CancelledView):
         super().__init__()
         self.events = events
         self.selector = EventSelector()
+        self.selector.callback = self.select_callback
         self.add_item(self.selector)
         self.accept_button = Button(label="Подтвердить", style=discord.ButtonStyle.green)
         self.accept_button.callback = self.accept_callback
+        self.add_item(self.accept_button)
 
+    async def select_callback(self, interaction: discord.Interaction):
+        content = f"Выбрано: " + ", ".join(self.selector.values)
+        await auto_delete_webhook(interaction, content, CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                      CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     async def accept_callback(self, interaction: discord.Interaction):
         user = interaction.user
         guild = interaction.guild
