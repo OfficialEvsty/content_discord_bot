@@ -2,8 +2,9 @@ import discord
 
 
 class RedirectedScreenshotEmbed(discord.Embed):
-    def __init__(self, event_name, image_url, datetime, size, author, icon_url, collisions, manual):
-        super().__init__(title=f"РЕЙД НА: ***{event_name}***", description=f"Размер рейда: `{size}`", timestamp=datetime)
+    def __init__(self, events, image_url, datetime, size, author, icon_url, collisions, manual):
+        events_name_txt = ", ".join(events)
+        super().__init__(title=f"РЕЙД НА: ***{events_name_txt}***", description=f"Размер рейда: `{size}`", timestamp=datetime)
         if collisions is not None:
             if len(collisions) > 0:
                 self.add_field(name=f'Коллизии `{len(collisions)}`', value='```\n'+'\n'.join(collisions) + '```', inline=True)

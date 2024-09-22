@@ -85,7 +85,7 @@ async def upload_image_tree(interaction: discord.Interaction, attachment: discor
         async for session in bot.db.get_session():
             channel_id = await get_redirect_channel_id(session, interaction.guild.id)
             channel = bot.get_channel(channel_id)
-            embed = RedirectedScreenshotEmbed(event_dict['event_name'], event_dict['event_ref'], event_dict['event_time'],
+            embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'], event_dict['event_time'],
                                               event_dict['event_size'], interaction.user, interaction.user.avatar.url,
                                               event_dict['nicknames_collision'], event_dict['nicknames_manual'])
             await channel.send(embed=embed)
