@@ -18,7 +18,10 @@ async def user_has_permission(session: AsyncSession, user: discord.Member, permi
     user_role_ids = [role.id for role in user_roles]
     user_id = user.id
     permission_role = await get_permission_roles(session, user.guild.id)
-    roles = {role_names[0]: permission_role.admin_role_id, role_names[1]: permission_role.moder_role_id}
-    required_roles = permissions.get(permission, [])
-    is_accessed = user_id in allowed_users or any(roles[role_name] in user_role_ids for role_name in required_roles)
+    is_role_accessed = False
+    if permission_role:
+        roles = {role_names[0]: permission_role.admin_role_id, role_names[1]: permission_role.moder_role_id}
+        required_roles = permissions.get(permission, [])
+        is_role_accessed = any(roles[role_name] in user_role_ids for role_name in required_roles)
+    is_accessed = user_id in allowed_users or is_role_accessed
     return is_accessed
