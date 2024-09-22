@@ -1,4 +1,4 @@
-
+from data.configuration import CONFIGURATION
 
 
 async def get_progress_bar(interaction, msg, step: int):
@@ -12,7 +12,7 @@ async def get_progress_bar(interaction, msg, step: int):
     ]
 
     if step == 0:
-        msg = await interaction.followup.send(f"⏳ Обработка: {progress_bar[step]}")
+        msg = await interaction.followup.send(f"⏳ Обработка: {progress_bar[step]}", ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         return msg
 
     step = min(step, len(progress_bar)-1)
