@@ -25,8 +25,9 @@ class Bot(discord.Client):
         await self.wait_until_ready()  # Ждем, пока бот полностью запустится
         if not self.is_closed():
             try:
-                guid = self.config["DiscordBot"]["GUILD_ID"]
-                await commands.nickname_commands.add_nicknames(guid, self.db.get_session(), self.config['ArcheAge'])
+                guids = self.config["DiscordBot"]["GUILD_ID"]
+                for guid in guids:
+                    await commands.nickname_commands.add_nicknames(guid, self.db.get_session(), self.config['ArcheAge'])
             except Exception as e:
                 logging.root.error(f"Ошибка во время выполнения таймер-команды запроса к серверу: {e}")
             logging.root.info("Тайм-команда успешно отработала")

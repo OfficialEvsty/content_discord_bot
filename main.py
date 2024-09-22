@@ -14,6 +14,8 @@ import json
 import yaml
 import logging
 import logging.config
+
+from commands.permission_commands import set_permission_roles
 from commands.setting_commands import get_redirect_channel_id, get_request_channel_id
 from controllers.events_controller import EventAndActivityController
 from controllers.panel_controller import PanelController
@@ -101,11 +103,12 @@ async def upload_image_tree(interaction: discord.Interaction, attachment: discor
 async def set_settings(interaction: discord.Interaction, redirect_channel: discord.TextChannel,
                        request_channel: discord.TextChannel)  :
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    if not user_has_permission(interaction.guild.get_member(interaction.user.id), "setup_accessing"):
+    session = bot.db.get_session_sync()
+    if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "setup_accessing"):
         return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде",
                                          CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                          CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    session = bot.db.get_session_sync()
+
     await commands.setting_commands.set_text_channels(session, interaction.guild.id, redirect_channel.id,
                                                       request_channel.id)
     await session.close()
@@ -121,11 +124,12 @@ async def set_settings(interaction: discord.Interaction, redirect_channel: disco
                   guilds=available_guilds)
 async def manage_panel(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    if not user_has_permission(interaction.guild.get_member(interaction.user.id), "view_users_activity"):
+    session = bot.db.get_session_sync()
+    if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "view_users_activity"):
         return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде",
                                          CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                          CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    session = bot.db.get_session_sync()
+
     controller = PanelController(session)
     await controller.launch_panel(interaction)
     #if user_has_permission(interaction.user.roles, "ff"):
@@ -157,19 +161,18 @@ async def bound_nickname(interaction: discord.Interaction, nickname: str):
 @bot.tree.command(name="настройка_доступов", description="Настройка доступов",
                   guilds=available_guilds)
 async def edit_roles(interaction: discord.Interaction, admin: discord.Role, moder: discord.Role = None):
-    await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    if not user_has_permission(interaction.guild.get_member(interaction.user.id), "setup_accessing"):
-        return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-    with open("roles_permissions.json", "r") as file:
-        data = json.load(file)
-        data['roles']['admin'] = admin.id
-        if moder:
-            data['roles']['moderator'] = moder.id
-    with open("roles_permissions.json", "w") as file:
-        json.dump(data, file)
-    none_str = "None"
-    await auto_delete_webhook(interaction,f"Выбранным ролям выдан доступ: `admin-{admin}`, `moderator-{none_str if moder is None else moder}`", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    try:
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        session = bot.db.get_session_sync()
+        if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "setup_accessing"):
+            return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
+        await set_permission_roles(session, interaction.guild.id, admin, moder)
+
+        none_str = "None"
+        await auto_delete_webhook(interaction,f"Выбранным ролям выдан доступ: `admin-{admin}`, `moderator-{none_str if moder is None else moder}`", CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'], CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    except Exception as e:
+        print(f"Ошибка: {e}")
 
 
 

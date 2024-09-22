@@ -39,13 +39,14 @@ class SwitchNicknameView(BaseView):
             logger.info(f"View: {self} не смогло обновиться, так как сообщения к которому оно прикреплено не существует")
 
     async def accept_callback(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        if not user_has_permission(interaction.guild.get_member(interaction.user.id), "nicknames_control"):
-            return await auto_delete_webhook(interaction, "У вас нет доступа для этого действия",
-                                      CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
-                                      CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         session = self.database.get_session_sync()
         try:
+            await interaction.response.defer()
+            if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id),
+                                             "nicknames_control"):
+                return await auto_delete_webhook(interaction, "У вас нет доступа для этого действия",
+                                                 CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                                 CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
             controller = NicknameController(session)
             await controller.bound_nickname_to_member(interaction, self.user.id, self.nickname)
@@ -58,9 +59,10 @@ class SwitchNicknameView(BaseView):
         finally:
             await session.close()
     async def reject_callback(self, interaction: discord.Interaction):
+        session = self.database.get_session_sync()
         try:
             await interaction.response.defer()
-            if not user_has_permission(interaction.guild.get_member(interaction.user.id), "nicknames_control"):
+            if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "nicknames_control"):
                 return await auto_delete_webhook(interaction, "У вас нет доступа для этого действия",
                                           CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                           CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
@@ -71,3 +73,5 @@ class SwitchNicknameView(BaseView):
                                                      color=discord.Color.red()))
         except Exception as e:
             logger.error(f"Ошибка при обработке события {self.reject_callback}: {e}")
+        finally:
+            await session.close()
