@@ -140,10 +140,10 @@ class PaginatorView(BaseView):
         self.bank = round(calculations[1], 2)
         sorted_salary = dict(sorted(filtered_salary.items(), key=lambda item: item[1], reverse=True))
         money_char = "$"
-        max_value_len = max(len(str(val)) for val in sorted_salary.values())
+        max_value_len = max(len(str(round(val, 2))) for val in sorted_salary.values())
         if len(sorted_salary) > 0:
             self.max_chars_count = max(len(key) for key in sorted_salary.keys())
-        self.items_list = [f"{item[0].ljust(self.max_chars_count)} | {str(round(item[1], 2)).rjust(4)} {money_char:>{max_value_len}}" for item in
+        self.items_list = [f"{item[0].ljust(self.max_chars_count)} | {str(round(item[1], 2)).rjust(4)} {money_char:<{max_value_len}}" for item in
                            sorted_salary.items()]
 
 
