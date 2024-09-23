@@ -1,4 +1,4 @@
-
+import asyncio
 from typing import List
 
 import discord
@@ -28,6 +28,8 @@ from ui.embeds.screenshot_embed import RedirectedScreenshotEmbed
 from utilities.custom_slash import auto_delete_webhook
 from validation.permission_validation import user_has_permission
 
+# Блокировщик асинхронных операций, если они заняты
+lock = asyncio.Lock()
 
 def setup_logging(config_file='logging.yaml'):
     with open(config_file) as f:
@@ -80,17 +82,22 @@ async def available_nicknames_autocomplete(
 async def upload_image_tree(interaction: discord.Interaction, attachment: discord.Attachment):
     try:
         await interaction.response.defer(ephemeral=bot.config['SLASH_COMMANDS']['IsResponsesEphemeral'])
-        session = bot.db.get_session()
-        controller = EventAndActivityController()
-        event_dict = await controller.generate_event(interaction, session, attachment, bot.config)
+        if lock.locked():
+            return await auto_delete_webhook(interaction, f"Данная команда занята, дождитесь, когда её освободят",
+                                      CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                      CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        async with lock:
+            session = bot.db.get_session()
+            controller = EventAndActivityController()
+            event_dict = await controller.generate_event(interaction, session, attachment, bot.config)
 
-        async for session in bot.db.get_session():
-            channel_id = await get_redirect_channel_id(session, interaction.guild.id)
-            channel = bot.get_channel(channel_id)
-            embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'], event_dict['event_time'],
-                                              event_dict['event_size'], interaction.user, interaction.user.avatar.url,
-                                              event_dict['nicknames_collision'], event_dict['nicknames_manual'])
-            await channel.send(embed=embed)
+            async for session in bot.db.get_session():
+                channel_id = await get_redirect_channel_id(session, interaction.guild.id)
+                channel = bot.get_channel(channel_id)
+                embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'], event_dict['event_time'],
+                                                  event_dict['event_size'], interaction.user, interaction.user.avatar.url,
+                                                  event_dict['nicknames_collision'], event_dict['nicknames_manual'])
+                await channel.send(embed=embed)
     except CancelException as ce:
         pass
     except TimeoutError as te:

@@ -9,7 +9,7 @@ logger = logging.getLogger("app.commands")
 async def set_text_channels(session: AsyncSession, guid, redirect_channel_id, request_channel_id):
     try:
         result = await session.execute(select(Setting).where(Setting.guid == guid))
-        if len(result.scalars().all()) > 0:
+        if result:
             existing_setting = result.scalars().first()
             existing_setting.request_channel_id = request_channel_id
             existing_setting.redirect_channel_id = redirect_channel_id
