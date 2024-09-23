@@ -81,14 +81,13 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
 
         occurrences = find_nicknames_by_predicate(pattern, visited_members, nicknames)
         if len(occurrences) == 0 and similar_letters is not None:
-            translate_substring = translate_substring_to_similar_lang(similar_letters, substring)
-            if translate_substring is None:
-                continue
-            translate_pattern = f"^{re.escape(translate_substring)}"
-            occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
+            rus, eng = translate_substring_to_similar_lang(similar_letters, substring)
+            for substr in [rus, eng]:
+                translate_pattern = f"^{re.escape(substr)}"
+                occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
 
-        if len(occurrences) > 0:
-            visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
+                if len(occurrences) > 0:
+                    visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
 
     # Отдельно обработать n колизии с n совпадающими никами
     for i in range(len(visited_members)):
@@ -122,23 +121,29 @@ def find_nicknames_by_predicate(pattern, visited_members, nicknames) -> []:
     return occurrence_list
 
 
-def translate_substring_to_similar_lang(similar: dict, substring) -> str:
+def translate_substring_to_similar_lang(similar: dict, substring) -> ():
     def is_russian(text):
         return all('А' <= char <= 'я' or char == 'ё' for char in text)
 
     def is_english(text):
         return all('A' <= char <= 'Z' or 'a' <= char <= 'z' for char in text)
 
-    translate_substring = ""
+    translate_rus_substring = ""
+    translate_eng_substring = ""
     for char in substring:
         for char_rus, char_eng in similar.items():
             if char == char_rus:
-                translate_substring += char_eng
+                translate_eng_substring += char_eng
             elif char == char_eng:
-                translate_substring += char_rus
+                translate_rus_substring += char_rus
 
-    if (is_russian(translate_substring) or is_english(translate_substring)) and len(translate_substring) >= 2 :
-        return translate_substring
+    if len(translate_rus_substring) > 0 and len(translate_eng_substring) > 0:
+        return translate_rus_substring, translate_eng_substring
+    if len(translate_eng_substring) > 0:
+        return None, translate_eng_substring
+    if len(translate_rus_substring) > 0:
+        return  translate_rus_substring, None
+
     else:
         try:
             raise Exception("Язык для перевода не поддерживается или язык подстроки неоднороден")
