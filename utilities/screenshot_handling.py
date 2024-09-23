@@ -84,7 +84,9 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
             rus, eng = translate_substring_to_similar_lang(similar_letters, substring)
             for substr in [rus, eng]:
                 if substr:
+                    print(f"{substr} skip")
                     continue
+                print(f"{substr} proccess")
                 translate_pattern = f"^{re.escape(substr)}"
                 occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
 
