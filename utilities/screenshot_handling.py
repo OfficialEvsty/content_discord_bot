@@ -90,8 +90,8 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
                 translate_pattern = f"^{re.escape(substr)}"
                 occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
 
-                if len(occurrences) > 0:
-                    visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
+        if len(occurrences) > 0:
+            visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
 
     # Отдельно обработать n колизии с n совпадающими никами
     for i in range(len(visited_members)):
