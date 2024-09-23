@@ -79,6 +79,7 @@ class EventAndActivityController:
         event_ask_view = EventSelectorView(events)
         title = f"Выберите от 1 до 4 событий, за которые необходимо загрузить скриншот"
         msg = await interaction.followup.send(embed=discord.Embed(title=title), view=event_ask_view)
+        event_ask_view.message = msg
         await event_ask_view.wait()
         await msg.delete()
         if len(events) == 0:
