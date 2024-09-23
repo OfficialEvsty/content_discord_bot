@@ -82,6 +82,8 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
         occurrences = find_nicknames_by_predicate(pattern, visited_members, nicknames)
         if len(occurrences) == 0 and similar_letters is not None:
             rus, eng = translate_substring_to_similar_lang(similar_letters, substring)
+            if rus is None and eng is None:
+                continue
             for substr in [rus, eng]:
                 if not substr:
                     continue
@@ -145,12 +147,7 @@ def translate_substring_to_similar_lang(similar: dict, substring) -> ():
         return None, translate_eng_substring
     if len(translate_rus_substring) > 0:
         return  translate_rus_substring, None
-
-    else:
-        try:
-            raise Exception("Язык для перевода не поддерживается или язык подстроки неоднороден")
-        except Exception as e:
-            logger.debug(e)
+    return None, None
 
 
 def get_nickname_box_image(img_path, bbox):
