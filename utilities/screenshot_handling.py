@@ -91,7 +91,7 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
                 translate_pattern = f"^{re.escape(substr)}"
                 occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
                 if len(occurrences) > 0:
-                    print(f"break with: {occurrences}")
+                    print(f"break with.: {occurrences}")
                     break
 
         if len(occurrences) > 0:
