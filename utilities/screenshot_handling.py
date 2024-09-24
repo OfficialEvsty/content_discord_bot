@@ -154,6 +154,9 @@ def translate_substring_to_similar_lang(similar: dict, substring) -> ():
                 translate_rus_substring += char
             if found:
                 break
+        if not found:
+            translate_rus_substring += char
+            translate_eng_substring += char
 
     if len(translate_rus_substring) > 0 and len(translate_eng_substring) > 0:
         return translate_rus_substring, translate_eng_substring
