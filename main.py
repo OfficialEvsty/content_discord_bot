@@ -75,29 +75,46 @@ async def available_nicknames_autocomplete(
         if nickname.lower().startswith(current.lower())
        ][:25]
 
+async def timeout_handler(timeout: int):
+    try:
+        await asyncio.sleep(timeout)
+        if lock.locked():
+            print(f"Истек таймер {timeout} секунд. Освобождаем ресурс.")
+            lock.release()
+    except Exception as e:
+        print(f"Ошибка в таймере: {e}")
 
+async def execute_uploading_image(interaction, attachment):
+    if lock.locked():
+        return await auto_delete_webhook(interaction, f"Данная команда занята, дождитесь, когда её освободят",
+                                         CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                         CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    async with lock:
+        session = bot.db.get_session()
+        controller = EventAndActivityController()
+        event_dict = await controller.generate_event(interaction, session, attachment, bot.config)
+
+        async for session in bot.db.get_session():
+            channel_id = await get_redirect_channel_id(session, interaction.guild.id)
+            channel = bot.get_channel(channel_id)
+            embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'],
+                                              event_dict['event_time'],
+                                              event_dict['event_size'], interaction.user, interaction.user.avatar.url,
+                                              event_dict['nicknames_collision'], event_dict['nicknames_manual'])
+            await channel.send(embed=embed)
 @bot.tree.command(name="скриншот_посещаемости", description="Загрузить скриншот рейда",
                   guilds=available_guilds)
 @describe(attachment="Скриншот посещаемости")
 async def upload_image_tree(interaction: discord.Interaction, attachment: discord.Attachment):
     try:
+        timeout = 300
         await interaction.response.defer(ephemeral=bot.config['SLASH_COMMANDS']['IsResponsesEphemeral'])
-        if lock.locked():
-            return await auto_delete_webhook(interaction, f"Данная команда занята, дождитесь, когда её освободят",
-                                      CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
-                                      CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-        async with lock:
-            session = bot.db.get_session()
-            controller = EventAndActivityController()
-            event_dict = await controller.generate_event(interaction, session, attachment, bot.config)
+        command_task = asyncio.create_task(execute_uploading_image(interaction, attachment))
+        handler = asyncio.create_task(timeout_handler(timeout))
+        await command_task
 
-            async for session in bot.db.get_session():
-                channel_id = await get_redirect_channel_id(session, interaction.guild.id)
-                channel = bot.get_channel(channel_id)
-                embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'], event_dict['event_time'],
-                                                  event_dict['event_size'], interaction.user, interaction.user.avatar.url,
-                                                  event_dict['nicknames_collision'], event_dict['nicknames_manual'])
-                await channel.send(embed=embed)
+        if not handler.done():
+            handler.cancel()
     except CancelException as ce:
         pass
     except TimeoutError as te:
