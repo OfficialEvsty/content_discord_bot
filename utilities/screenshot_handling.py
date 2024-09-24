@@ -82,6 +82,7 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
         occurrences = find_nicknames_by_predicate(pattern, visited_members, nicknames)
         if len(occurrences) == 0 and similar_letters is not None:
             rus, eng = translate_substring_to_similar_lang(similar_letters, substring)
+            print("Слова "+rus + " " + eng)
             if rus is None and eng is None:
                 continue
             for substr in [rus, eng]:
@@ -90,6 +91,7 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
                 translate_pattern = f"^{re.escape(substr)}"
                 occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
                 if len(occurrences) > 0:
+                    print(f"break with: "+occurrences)
                     break
 
         if len(occurrences) > 0:
