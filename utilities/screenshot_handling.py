@@ -139,16 +139,21 @@ def translate_substring_to_similar_lang(similar: dict, substring) -> ():
     translate_rus_substring = ""
     translate_eng_substring = ""
     for char in substring:
+        found = False
         for char_rus, char_eng in similar.items():
             if char == char_rus:
                 translate_eng_substring += char_eng
-            else:
+                found = True
+            elif char == char_eng:
                 translate_eng_substring += char
+                found = True
 
             if char == char_eng:
                 translate_rus_substring += char_rus
-            else:
+            elif char == char_rus:
                 translate_rus_substring += char
+            if found:
+                break
 
     if len(translate_rus_substring) > 0 and len(translate_eng_substring) > 0:
         return translate_rus_substring, translate_eng_substring
