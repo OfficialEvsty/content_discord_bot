@@ -89,6 +89,8 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
                     continue
                 translate_pattern = f"^{re.escape(substr)}"
                 occurrences = find_nicknames_by_predicate(translate_pattern, visited_members, nicknames)
+                if len(occurrences) > 0:
+                    break
 
         if len(occurrences) > 0:
             visited_members.append([occurrences, get_nickname_box_image(image_to_recognize, bbox)])
@@ -138,8 +140,13 @@ def translate_substring_to_similar_lang(similar: dict, substring) -> ():
         for char_rus, char_eng in similar.items():
             if char == char_rus:
                 translate_eng_substring += char_eng
-            elif char == char_eng:
+            else:
+                translate_eng_substring += char
+
+            if char == char_eng:
                 translate_rus_substring += char_rus
+            else:
+                translate_rus_substring += char
 
     if len(translate_rus_substring) > 0 and len(translate_eng_substring) > 0:
         return translate_rus_substring, translate_eng_substring
