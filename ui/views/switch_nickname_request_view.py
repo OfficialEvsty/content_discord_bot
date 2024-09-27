@@ -51,7 +51,7 @@ class SwitchNicknameView(BaseView):
             controller = NicknameController(session)
             await controller.bound_nickname_to_member(interaction, self.user.id, self.nickname)
             colored_embed = SwitchNicknameEmbed(self.user, self.nickname, discord.Color.green())
-            await self.message.edit(embed=colored_embed, view=None)
+            await self.message.edit(embed=colored_embed, view=discord.ui.View())
             await self.user.send(embed=discord.Embed(title=f"Ваш запрос на присваивание никнейма `{self.nickname}` принят 🎉",
                                                      color=discord.Color.green()))
         except Exception as e:

@@ -22,6 +22,7 @@ from controllers.panel_controller import PanelController
 from data.configuration import CONFIGURATION
 from data.models.event import EventType
 from exceptions.cancel_exception import CancelException
+from exceptions.timeout_exception import TimeoutException
 from services.nickname_service import NicknameService
 from structures.requesting.request import NicknameRequest, nickname_requests
 from ui.embeds.screenshot_embed import RedirectedScreenshotEmbed
@@ -117,7 +118,7 @@ async def upload_image_tree(interaction: discord.Interaction, attachment: discor
             handler.cancel()
     except CancelException as ce:
         pass
-    except TimeoutError as te:
+    except TimeoutException as te:
         pass
 
 
