@@ -1,19 +1,13 @@
 import json
 import logging
-from code import interact
+
 
 import discord
-from numpy.distutils.system_info import NotFoundError
-from requests import session
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from commands.nickname_commands import get_member_by_nickname, get_nicknames_by_member
-from data.configuration import CONFIGURATION
+from sqlalchemy.ext.asyncio import AsyncSession
 from services.nickname_service import NicknameService
-from structures.requesting.request import nickname_requests, NicknameRequest
-from ui.embeds.owner_nicknames_profile_embed import BoundingNicknamesEmbed
+from structures.requesting.request import nickname_requests
 from ui.views.simple_response_view import ConfirmView
-from utilities.custom_slash import auto_delete_webhook
 
 logger = logging.getLogger("app.controllers")
 
@@ -65,11 +59,6 @@ class NicknameController:
         owned = []
         owned = await service.get_owned_nicknames(interaction.guild.id, user_id)
 
-    async def get_nickname_profile(self, member:discord.Member, interaction: discord.Interaction):
-
-        current, previous = await get_nicknames_by_member(self.session, member)
-        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
-        return await interaction.followup.send(embed=embed)
 
 
 

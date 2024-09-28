@@ -27,6 +27,7 @@ from exceptions.cancel_exception import CancelException
 from exceptions.timeout_exception import TimeoutException
 from services.nickname_service import NicknameService
 from structures.requesting.request import NicknameRequest, nickname_requests
+from ui.embeds.owner_nicknames_profile_embed import BoundingNicknamesEmbed
 from ui.embeds.screenshot_embed import RedirectedScreenshotEmbed
 from utilities.custom_slash import auto_delete_webhook
 from validation.permission_validation import user_has_permission
@@ -229,10 +230,10 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer()
     session = bot.db.get_session_sync()
     try:
-
-        controller = NicknameController(session)
         member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname)
-        return await controller.get_nickname_profile(member, interaction)
+        current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
+        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
+        return await interaction.followup.send(embed=embed)
     except NotFoundError as e:
         return auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",

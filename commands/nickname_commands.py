@@ -3,7 +3,6 @@ from typing import List
 
 import discord
 from numpy.distutils.system_info import NotFoundError
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.nickname_service import NicknameService
