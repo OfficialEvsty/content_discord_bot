@@ -3,6 +3,7 @@ from typing import List
 
 import discord
 from discord.app_commands import describe
+from numpy.distutils.system_info import NotFoundError
 
 from bot import Bot
 import commands.ingame_screenshot_commands
@@ -227,8 +228,21 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 async def check_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer()
     session = bot.db.get_session_sync()
-    controller = NicknameController(session)
-    return await controller.get_nickname_profile(bot, interaction, nickname)
+    try:
+
+        controller = NicknameController(session)
+        member = await commands.nickname_commands.get_member_by_nickname(bot, interaction.guild.id, session, nickname)
+        return await controller.get_nickname_profile(member, interaction, nickname)
+    except NotFoundError as e:
+        return auto_delete_webhook(interaction,
+                                   f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
+                                   CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                   CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+
+    finally:
+        await session.close()
+
+
 
 
 
