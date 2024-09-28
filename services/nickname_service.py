@@ -108,8 +108,7 @@ class NicknameService:
                     .where(
                         and_(
                             Nickname.guid == guid,
-                            NicknameOwner.user_id == user_id,
-                            ArchivedNickname.nickname_id == Nickname.id
+                            NicknameOwner.user_id == user_id
                         )
                     )
             )

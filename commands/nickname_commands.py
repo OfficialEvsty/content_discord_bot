@@ -61,9 +61,9 @@ async def get_nicknames_by_member(session: AsyncSession, member: discord.Member)
     for nickname in owned:
         await session.refresh(nickname, ['archived_nickname'])
         if nickname.is_archived:
-            previous.append(f"{nickname.name}:<15 {nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}")
+            previous.append(f"**{nickname.name}**:\t**{nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}**")
             continue
-        current = f"{nickname.name}:<15 {nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}"
+        current = f"**{nickname.name}**\t**{nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}**"
     return current, previous
 
 

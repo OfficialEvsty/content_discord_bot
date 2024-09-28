@@ -224,7 +224,7 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 
 
 @discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
-@bot.tree.command(name="узнать_ник", description="Узнать кому принадлежит никнейм",
+@bot.tree.command(name="профиль", description="Узнать кому принадлежит никнейм",
                   guilds=available_guilds)
 async def check_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer()
@@ -235,8 +235,26 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
         embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
         return await interaction.followup.send(embed=embed)
     except NotFoundError as e:
-        return auto_delete_webhook(interaction,
+        return await auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
+                                   CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                   CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+
+    finally:
+        await session.close()
+
+@bot.tree.context_menu(name="профиль", description="Узнать никнеймы пользвателя",
+                  guilds=available_guilds)
+async def check_nickname(interaction: discord.Interaction, member: discord.Member):
+    await interaction.response.defer()
+    session = bot.db.get_session_sync()
+    try:
+        current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
+        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
+        return await interaction.followup.send(embed=embed)
+    except NotFoundError as e:
+        return await auto_delete_webhook(interaction,
+                                   f"{member.name} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
                                    CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                    CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
