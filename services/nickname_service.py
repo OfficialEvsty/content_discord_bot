@@ -104,7 +104,6 @@ class NicknameService:
         try:
             result = await self.session.execute(select(Nickname)
                 .join(NicknameOwner)
-                .join(ArchivedNickname)
                     .where(
                         and_(
                             Nickname.guid == guid,

@@ -245,7 +245,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
 
 @bot.tree.context_menu(name="профиль",
                   guilds=available_guilds)
-async def check_nickname(interaction: discord.Interaction, member: discord.Member):
+async def profile_nickname(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.defer()
     session = bot.db.get_session_sync()
     try:
