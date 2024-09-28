@@ -224,13 +224,13 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 @bot.tree.command(name="узнать_ник", description="Узнать кому принадлежит никнейм",
                   guilds=available_guilds)
 async def check_nickname(interaction: discord.Interaction, nickname: str):
-    await interaction.response.defer()
+    await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     try:
         member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname)
         current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
         embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
-        return await interaction.followup.send(embed=embed)
+        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
@@ -243,12 +243,12 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
 @bot.tree.context_menu(name="профиль",
                   guilds=available_guilds)
 async def profile_nickname(interaction: discord.Interaction, member: discord.Member):
-    await interaction.response.defer()
+    await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     try:
         current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
         embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
-        return await interaction.followup.send(embed=embed)
+        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,
                                    f"{member.name} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
