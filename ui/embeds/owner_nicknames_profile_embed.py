@@ -23,5 +23,4 @@ class BoundingNicknamesEmbed(discord.Embed):
                                                       random.randint(0, 255),
                                                       random.randint(0, 255)))
         self.set_author(name=author, icon_url=author_icon)
-        self.set_footer(text=f"{caller_name} использовал /профиль", icon_url=caller_icon)
         self.set_thumbnail(url=author_icon)

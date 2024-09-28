@@ -85,14 +85,11 @@ async def all_nicknames_autocomplete(
     session = bot.db.get_session_sync()
     service = NicknameService(session)
     nicknames = await service.get_all_nicknames(interaction.guild.id)
-    already_owned_nicknames = await service.get_owned_nicknames(interaction.guild.id, interaction.user.id)
-    items_to_delete = [nickname.name for nickname in already_owned_nicknames]
     items = [nickname.name for nickname in nicknames]
-    available_nicknames = list(set(items) - set(items_to_delete))
     await session.close()
     return [
         discord.app_commands.Choice(name=nickname, value=nickname)
-        for nickname in sorted(available_nicknames)
+        for nickname in sorted(items)
         if nickname.lower().startswith(current.lower())
        ][:25]
 
@@ -224,7 +221,7 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 
 
 @discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
-@bot.tree.command(name="профиль", description="Узнать кому принадлежит никнейм",
+@bot.tree.command(name="узнать_ник", description="Узнать кому принадлежит никнейм",
                   guilds=available_guilds)
 async def check_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer()
