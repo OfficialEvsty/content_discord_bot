@@ -231,8 +231,8 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     try:
 
         controller = NicknameController(session)
-        member = await commands.nickname_commands.get_member_by_nickname(bot, interaction.guild.id, session, nickname)
-        return await controller.get_nickname_profile(member, interaction, nickname)
+        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname)
+        return await controller.get_nickname_profile(member, interaction)
     except NotFoundError as e:
         return auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
