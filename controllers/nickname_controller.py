@@ -65,14 +65,11 @@ class NicknameController:
         owned = []
         owned = await service.get_owned_nicknames(interaction.guild.id, user_id)
 
-    async def get_nickname_profile(self, member:discord.Member, interaction: discord.Interaction, content):
-        try:
+    async def get_nickname_profile(self, member:discord.Member, interaction: discord.Interaction):
 
-
-
-            current, previous = await get_nicknames_by_member(self.session, member)
-            embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
-            return await interaction.followup.send(embed=embed)
+        current, previous = await get_nicknames_by_member(self.session, member)
+        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
+        return await interaction.followup.send(embed=embed)
 
 
 
