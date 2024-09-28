@@ -1,6 +1,9 @@
 import json
+from typing import List
 
 import discord
+from numpy.distutils.system_info import NotFoundError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.nickname_service import NicknameService
@@ -40,5 +43,30 @@ async def send_request_on_nickname_bounding(database, interaction: discord.Inter
     await auto_delete_webhook(interaction, "Ваш запрос был отправлен в специальный канал для подтверждения, "
                                     "если его подтвердят, то вам придет уведомление в лс",
                               config['SLASH_COMMANDS']['DeleteAfter'])
+
+async def get_member_by_nickname(client: discord.Client, guid, session: AsyncSession, nickname: str) -> discord.Member:
+    nickname_service = NicknameService(session)
+    owner_id = await nickname_service.get_member_id_by_nickname(guid, nickname)
+    if owner_id:
+        return client.get_guild(guid).get_member(owner_id)
+    raise NotFoundError
+
+async def get_nicknames_by_member(session: AsyncSession, member: discord.Member) -> (str, List[str]):
+    previous: List[str] = []
+    current: str = ""
+
+    service = NicknameService(session)
+    owned = await service.get_owned_nicknames(member.guild.id, member.id)
+    if len(owned) == 0:
+        raise NotFoundError()
+    for nickname in owned:
+        await session.refresh(nickname, ['archived_nickname'])
+        if nickname.is_archived:
+            previous.append(f"{nickname.name}:<15 {nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}")
+            continue
+        current = f"{nickname.name}:<15 {nickname.archived_nickname.archived_at.strftime('%d %B, %Y')}"
+    return current, previous
+
+
 
 

@@ -54,13 +54,27 @@ class NicknameService:
         await self.session.commit()
         logger.info(f"Ники были удалены из БД: {nicknames}")
 
-    async def get_nicknames(self, guid, substring=""):
+    async def get_nicknames(self, guid, substring="", is_archived=False):
         try:
             result = await self.session.execute(select(Nickname).where(
                 and_(
                     Nickname.name.like(f'%{substring}%'),
                     Nickname.guid == guid,
-                    Nickname.is_archived == False
+                    Nickname.is_archived == is_archived
+                )
+            ))
+            nicknames = result.scalars().all()
+            return nicknames
+        except Exception as e:
+            logger.error(f"Ошибка при попытке получить доступные никнеймы: {e}")
+            await self.session.close()
+
+    async def get_all_nicknames(self, guid, substring=""):
+        try:
+            result = await self.session.execute(select(Nickname).where(
+                and_(
+                    Nickname.name.like(f'%{substring}%'),
+                    Nickname.guid == guid
                 )
             ))
             nicknames = result.scalars().all()
@@ -90,10 +104,12 @@ class NicknameService:
         try:
             result = await self.session.execute(select(Nickname)
                 .join(NicknameOwner)
+                .join(ArchivedNickname)
                     .where(
                         and_(
                             Nickname.guid == guid,
-                            NicknameOwner.user_id == user_id
+                            NicknameOwner.user_id == user_id,
+                            ArchivedNickname.nickname_id == Nickname.id
                         )
                     )
             )
@@ -156,4 +172,21 @@ class NicknameService:
             logger.error(f"Ошибка во время привязки никнейма {nickname} к игроку {user_id}: {e}")
             await self.session.close()
             return
+
+    async def get_member_id_by_nickname(self, guid, nickname: str):
+        try:
+            result = await self.session.execute(select(NicknameOwner)
+                                .join(Nickname)
+                                       .where(
+                                            and_(
+                                                Nickname.guid == guid,
+                                                Nickname.name == nickname,
+                                                Nickname.is_borrowed == True,
+                                                NicknameOwner.nickname_id == Nickname.id
+                                            )))
+            if result:
+                owner = result.scalars().first()
+                return owner.user_id
+        except Exception as e:
+            logger.error(f"Ошибка в {self.get_member_id_by_nickname}: {e}")
 

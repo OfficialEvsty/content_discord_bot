@@ -3,14 +3,17 @@ import logging
 from code import interact
 
 import discord
+from numpy.distutils.system_info import NotFoundError
+from requests import session
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from commands.nickname_commands import get_member_by_nickname, get_nicknames_by_member
+from data.configuration import CONFIGURATION
 from services.nickname_service import NicknameService
 from structures.requesting.request import nickname_requests, NicknameRequest
+from ui.embeds.owner_nicknames_profile_embed import BoundingNicknamesEmbed
 from ui.views.simple_response_view import ConfirmView
-
-
-
+from utilities.custom_slash import auto_delete_webhook
 
 logger = logging.getLogger("app.controllers")
 
@@ -61,5 +64,28 @@ class NicknameController:
         service = NicknameService(self.session)
         owned = []
         owned = await service.get_owned_nicknames(interaction.guild.id, user_id)
+
+    async def get_nickname_profile(self, client: discord.Client, interaction: discord.Interaction, content):
+        try:
+            match content:
+                case discord.Member:
+                    member = content
+                case str:
+                    member = await get_member_by_nickname(client, interaction.guild.id, self.session, content)
+
+
+
+            current, previous = await get_nicknames_by_member(self.session, member)
+            embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
+            return await interaction.followup.send(embed=embed)
+        except NotFoundError as e:
+            logger.error(f"Ошибка в {self}: {e}")
+            return auto_delete_webhook(interaction, f"{content} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
+                                       CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                       CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        finally:
+            await self.session.close()
+
+
 
 
