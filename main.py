@@ -243,7 +243,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     finally:
         await session.close()
 
-@bot.tree.context_menu(name="профиль", description="Узнать никнеймы пользвателя",
+@bot.tree.context_menu(name="профиль",
                   guilds=available_guilds)
 async def check_nickname(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.defer()
