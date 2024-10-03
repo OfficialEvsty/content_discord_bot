@@ -146,12 +146,12 @@ class PaginatorView(BaseView):
         self.chosen = self.select.values
         self.current_page = 0
         if self.is_activity:
-            self.filter_by_bosses()
+            await self.filter_by_bosses()
         else:
-            self.salary_filter_by_bosses()
+            await self.salary_filter_by_bosses()
         await self.update(interaction)
 
-    def filter_by_bosses(self):
+    async def filter_by_bosses(self):
         chosen_bosses = self.select.values
         filtered_activity_percent = calculate_activity(self.items, chosen_bosses)
         sorted_activity_percent = dict(sorted(filtered_activity_percent.items(), key=lambda item: item[1], reverse=True))
@@ -159,7 +159,7 @@ class PaginatorView(BaseView):
             self.max_chars_count = max(len(key) for key in sorted_activity_percent.keys())
         self.items_list = [f"{item[0].ljust(self.max_chars_count)} | {str(item[1]).rjust(4)}%" for item in sorted_activity_percent.items()]
 
-    def salary_filter_by_bosses(self):
+    async def salary_filter_by_bosses(self):
         chosen_bosses = self.select.values
         calculations = calculate_salary_by_nickname(self.items, chosen_bosses)
         filtered_salary = calculations[0]
