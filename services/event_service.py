@@ -80,9 +80,6 @@ class EventService:
                 result = await self.session.execute(
                     select(Activity)
                     .join(Event, Activity.event_id)
-                    .options(
-                        contains_eager(Activity.event).contains_eager(Event.activities)  # Используем явные соединения
-                    )
                     .where(
                         and_(
                             Activity.nickname_id.in_(nickname_ids),
