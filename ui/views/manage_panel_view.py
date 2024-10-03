@@ -40,9 +40,10 @@ class ManagerPanelView(CancelledView):
         await modal.wait()
         self.dates = (modal.start, modal.end)
         self.update_buttons()
-        await interaction.followup.edit_message(view=self, message_id=self.message.id, attachments=[])
         self.nickname_activities_percent = await self.controller.get_nickname_activities(interaction, self.dates[0],
                                                                                     self.dates[1])
+        return await self.message.edit(view=self)
+
 
 
     def update_buttons(self):
