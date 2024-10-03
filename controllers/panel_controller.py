@@ -25,7 +25,7 @@ class PanelController:
         ids = [nickname.id for nickname in nicknames]
         activities = await event_service.get_activities(guid, date1, date2, ids)
 
-        activity_dict = await collect_activities_by_nickname(self.session, activities)
+        activity_dict = await collect_activities_by_nickname(activities)
         return activity_dict
 
 

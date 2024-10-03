@@ -4,6 +4,7 @@ from typing import List
 
 from sqlalchemy import delete, select, and_, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from data.models.event import Event, Activity
 
@@ -77,7 +78,7 @@ class EventService:
                 result = await self.session.execute(select(Activity))
             else:
                 result = await self.session.execute(select(Activity)
-                .join(Event.activities)
+                    .options(joinedload(Activity.event).joinedload(Event.activities))
                     .where(
                         and_(
                             Activity.nickname_id.in_(nickname_ids),

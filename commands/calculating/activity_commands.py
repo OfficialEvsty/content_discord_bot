@@ -10,12 +10,10 @@ from data.models.nickname import Nickname
 with open('commands/calculating/parameters.json') as file:
     config = json.load(file)
 
-async def collect_activities_by_nickname(session: AsyncSession, activities):
+async def collect_activities_by_nickname(activities):
     activity_percentage_dict = {}
     temp = set()
     for activity in activities:
-        await session.refresh(activity, ['event'])
-        await session.refresh(activity.event, ['activities'])
         activity_percentage_dict.setdefault(activity.nickname, []).append(activity)
 
         temp.add(activity.event_id)
