@@ -4,7 +4,7 @@ from typing import List
 
 from sqlalchemy import delete, select, and_, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, contains_eager
 
 from data.models.event import Event, Activity
 
@@ -77,14 +77,20 @@ class EventService:
             if nickname_ids is None:
                 result = await self.session.execute(select(Activity))
             else:
-                result = await self.session.execute(select(Activity)
-                    .options(joinedload(Activity.event).joinedload(Event.activities))
+                result = await self.session.execute(
+                    select(Activity)
+                    .join(Event, Activity.event_id)
+                    .options(
+                        contains_eager(Activity.event).contains_eager(Event.activities)  # Используем явные соединения
+                    )
                     .where(
                         and_(
                             Activity.nickname_id.in_(nickname_ids),
                             Activity.guid == guid,
                             Event.datetime.between(start, end)
-                        )))
+                        )
+                    )
+                )
             activities = result.scalars().all()
             return activities
         except Exception as e:

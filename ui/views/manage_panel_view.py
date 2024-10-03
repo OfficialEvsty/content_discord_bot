@@ -15,36 +15,57 @@ class ManagerPanelView(CancelledView):
         super().__init__()
         self.message = message
         self.controller = controller
+        self.dates = (None, None)
+        self.nickname_activities_percent = None
         self.activity_button = Button(label="Активка")
         self.salary_button = Button(label="Зарплата")
+        self.input_dates_modal_button = Button(label="Выбрать даты")
         self.activity_button.callback = self.activity_callback
         self.salary_button.callback = self.salary_callback
+        self.input_dates_modal_button.callback = self.input_dates_modal
         self.add_item(self.activity_button)
         self.add_item(self.salary_button)
+        self.add_item(self.input_dates_modal_button)
+        self.update_buttons()
 
     async def on_timeout(self) -> None:
         if self.message:
             updated_view = ManagerPanelView(self.controller, self.message)
+            self.update_buttons()
             await self.message.edit(view=updated_view)
 
-    async def activity_callback(self, interaction: discord.Interaction):
+    async def input_dates_modal(self, interaction: discord.Interaction):
         modal = DateInputModal()
         modal_msg = await interaction.response.send_modal(modal)
         await modal.wait()
-        if modal.start and modal.end:
-            nickname_activities_percent = await self.controller.get_nickname_activities(interaction, modal.start, modal.end)
-            activity_viewer = PaginatorView(nickname_activities_percent, (modal.start, modal.end), True,
+        self.dates = (modal.start, modal.end)
+        self.update_buttons()
+        await interaction.followup.edit_message(view=self)
+        self.nickname_activities_percent = await self.controller.get_nickname_activities(interaction, self.dates[0],
+                                                                                    self.dates[1])
+
+
+    def update_buttons(self):
+        self.salary_button.disabled = True
+        self.activity_button.disabled = True
+        if self.dates[0] and self.dates[1]:
+            self.clear_items()
+            self.salary_button.disabled = False
+            self.activity_button.disabled = False
+            self.add_item(self.activity_button)
+            self.add_item(self.salary_button)
+            self.add_item(self.input_dates_modal_button)
+
+    async def activity_callback(self, interaction: discord.Interaction):
+        if self.dates[0] and self.dates[1]:
+            activity_viewer = PaginatorView(self.nickname_activities_percent, (self.dates[0], self.dates[1]), True,
                                             self.controller, self.message)
             await interaction.followup.edit_message(message_id=self.message.id, view=activity_viewer, attachments=[])
             self.stop()
 
     async def salary_callback(self, interaction: discord.Interaction):
-        modal = DateInputModal()
-        modal_msg = await interaction.response.send_modal(modal)
-        await modal.wait()
-        if modal.start and modal.end:
-            nickname_activities_percent = await self.controller.get_nickname_activities(interaction, modal.start, modal.end)
-            activity_viewer = PaginatorView(nickname_activities_percent, (modal.start, modal.end), False,
+        if self.dates[0] and self.dates[1]:
+            activity_viewer = PaginatorView(self.nickname_activities_percent, (self.dates[0], self.dates[1]), False,
                                             self.controller, self.message)
 
             await interaction.followup.edit_message(message_id=self.message.id, view=activity_viewer, attachments=[])
