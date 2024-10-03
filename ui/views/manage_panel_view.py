@@ -140,9 +140,10 @@ class PaginatorView(BaseView):
         if end_index < len(self.items):
             self.next_button.disabled = False
 
-        await interaction.response.edit_message(view=self, embed=self.embed)
+        return await interaction.followup.edit_message(message_id=self.message.id, view=self, embed=self.embed)
 
     async def select_callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.chosen = self.select.values
         self.current_page = 0
         if self.is_activity:
