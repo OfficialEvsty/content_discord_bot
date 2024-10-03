@@ -4,6 +4,7 @@ from discord.ui import Button, Select
 
 from commands.calculating.activity_commands import calculate_activity
 from commands.calculating.salary_commands import calculate_salary_by_nickname
+from data.configuration import CONFIGURATION
 from data.models.event import EventType
 from ui.embeds.manage_embed import ActivityViewerEmbed, ManagerEmbed, SalaryViewerEmbed
 from ui.modals.activity_modal import DateInputModal
@@ -56,8 +57,10 @@ class ManagerPanelView(CancelledView):
             self.add_item(self.activity_button)
             self.add_item(self.salary_button)
             self.add_item(self.input_dates_modal_button)
+            self.add_item(self.cnl_button)
 
     async def activity_callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         if self.dates[0] and self.dates[1]:
             activity_viewer = PaginatorView(self.nickname_activities_percent, (self.dates[0], self.dates[1]), True,
                                             self.controller, self.message)
@@ -65,6 +68,7 @@ class ManagerPanelView(CancelledView):
             self.stop()
 
     async def salary_callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         if self.dates[0] and self.dates[1]:
             activity_viewer = PaginatorView(self.nickname_activities_percent, (self.dates[0], self.dates[1]), False,
                                             self.controller, self.message)
