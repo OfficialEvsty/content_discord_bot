@@ -79,7 +79,7 @@ class EventService:
             else:
                 result = await self.session.execute(
                     select(Activity)
-                    .join(Event, Activity.event_id)
+                    .join(Event)
                     .where(
                         and_(
                             Activity.nickname_id.in_(nickname_ids),
@@ -89,6 +89,7 @@ class EventService:
                     )
                 )
             activities = result.scalars().all()
+            print(activities)
             return activities
         except Exception as e:
             logger.error(f"Ошибка при получении активностей: {e}")
