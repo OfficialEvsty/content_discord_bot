@@ -175,9 +175,11 @@ class PaginatorView(BaseView):
 
 
     async def next_page(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.current_page += 1
         await self.update(interaction)
     async def prev_page(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.current_page -= 1
         await self.update(interaction)
 
