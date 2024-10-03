@@ -12,7 +12,7 @@ from ui.views.base_view import BaseView, CancelledView
 
 
 class ManagerPanelView(CancelledView):
-    def __init__(self, controller, message = None, dates = None):
+    def __init__(self, controller, message = None, dates = (None, None)):
         super().__init__()
         self.message = message
         self.controller = controller
