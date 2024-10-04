@@ -79,7 +79,7 @@ class EventService:
             else:
                 result = await self.session.execute(
                     select(Activity)
-                    .options(joinedload(Activity.event).joinedload(Event.activities))
+                    .options(joinedload(Activity.event))
                     .join(Event)
                     .where(
                         and_(
