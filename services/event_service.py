@@ -79,7 +79,7 @@ class EventService:
             else:
                 result = await self.session.execute(
                     select(Activity)
-                    .options(joinedload(Activity.event))
+                    .options(joinedload(Activity.event).joinedload(Event.activities))
                     .join(Event)
                     .where(
                         and_(
@@ -90,7 +90,6 @@ class EventService:
                     )
                 )
             activities = result.scalars().all()
-            print(activities)
             return activities
         except Exception as e:
             logger.error(f"Ошибка при получении активностей: {e}")

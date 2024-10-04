@@ -12,12 +12,12 @@ from ui.views.base_view import BaseView, CancelledView
 
 
 class ManagerPanelView(CancelledView):
-    def __init__(self, controller, message = None, dates = (None, None)):
+    def __init__(self, controller, message = None, dates = (None, None), nickname_activities_percent = None):
         super().__init__()
         self.message = message
         self.controller = controller
         self.dates = dates
-        self.nickname_activities_percent = None
+        self.nickname_activities_percent = nickname_activities_percent
         self.activity_button = Button(label="Активка")
         self.salary_button = Button(label="Зарплата")
         self.input_dates_modal_button = Button(label="Выбрать даты")
@@ -184,7 +184,7 @@ class PaginatorView(BaseView):
         await self.update(interaction)
 
     async def back_callback(self, interaction: discord.Interaction):
-        view = ManagerPanelView(self.controller, self.message, self.dates)
+        view = ManagerPanelView(self.controller, self.message, self.dates, self.items)
         embed =ManagerEmbed(interaction.user, ">>> *Панель - лучший инструмент для просмотра статистики активностей и зарплат мемберов*", is_formatted=True)
         await interaction.response.edit_message(view=view, embed=embed, attachments=[embed.file])
         self.stop()
