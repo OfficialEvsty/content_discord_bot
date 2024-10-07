@@ -243,8 +243,10 @@ async def check_nickname(interaction: discord.Interaction, nickname: str, date_s
             dates = date_start, date_end
             if date_end is None or date_start is None:
                 dates = None
+                is_dates_valid = False
+            else:
+                is_dates_valid = check_date_range(date_start, date_end)
 
-            is_dates_valid = check_date_range(date_start, date_end)
             if not is_dates_valid:
                 return await auto_delete_webhook(interaction,
                                                  "Введите даты в правильном формате: `DD-MM-YYYY` и выполните условие start_date < end_date",
