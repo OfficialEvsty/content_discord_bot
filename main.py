@@ -228,37 +228,54 @@ async def check_nickname(interaction: discord.Interaction, nickname: str, date_s
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     try:
-        is_admin = False
-        if await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "view_users_activity"):
-            is_admin = True
-        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname, is_admin)
+        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname)
+        current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
+        embed = BoundingNicknamesEmbed(member, current, previous)
+        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    except NotFoundError as e:
+        return await auto_delete_webhook(interaction,
+                                   f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
+                                   CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                   CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+
+    finally:
+        await session.close()
+
+@discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
+@bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
+                  guilds=available_guilds)
+async def check_stats(interaction: discord.Interaction, nickname: str, date_start: str = None, date_end: str = None):
+    await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    session = bot.db.get_session_sync()
+    if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "view_users_activity"):
+        return await auto_delete_webhook(interaction, "У вас нету доступа к данной команде",
+                                         CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                         CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+    try:
+        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname, True)
         if not member:
             current = nickname
             previous = []
         else:
             current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
 
-        if is_admin:
-            panel = PanelController(session)
-            dates = date_start, date_end
-            if date_end is None or date_start is None:
-                dates = None
-                is_dates_valid = False
-            else:
-                is_dates_valid = check_date_range(date_start, date_end)
+        panel = PanelController(session)
+        dates = date_start, date_end
+        is_dates_valid = True
+        if date_end is None or date_start is None:
+            dates = None
+            is_dates_valid = False
 
-            if not is_dates_valid:
+        if is_dates_valid:
+            if not check_date_range(date_start, date_end):
                 return await auto_delete_webhook(interaction,
-                                                 "Введите даты в правильном формате: `DD-MM-YYYY` и выполните условие start_date < end_date",
-                                                 CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
-                                                 CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+                                             "Введите даты в правильном формате: `DD-MM-YYYY` и выполните условие start_date < end_date",
+                                             CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                             CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
-            activity, salary = panel.get_member_activities_and_salary(interaction, nickname, dates)
-            embed = BoundingNicknameAndActivityEmbed(None, current, previous, activity, salary)
-            return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
-        else:
-            embed = BoundingNicknamesEmbed(member, current, previous)
-            return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        activity, salary = panel.get_member_activities_and_salary(interaction, nickname, dates)
+        embed = BoundingNicknameAndActivityEmbed(None, current, previous, activity, salary)
+        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
