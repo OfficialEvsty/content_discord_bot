@@ -43,12 +43,13 @@ async def send_request_on_nickname_bounding(database, interaction: discord.Inter
                                     "если его подтвердят, то вам придет уведомление в лс",
                               config['SLASH_COMMANDS']['DeleteAfter'])
 
-async def get_member_by_nickname(guild: discord.Guild, session: AsyncSession, nickname: str) -> discord.Member:
+async def get_member_by_nickname(guild: discord.Guild, session: AsyncSession, nickname: str, is_admin = False) -> discord.Member:
     nickname_service = NicknameService(session)
     owner_id = await nickname_service.get_member_id_by_nickname(guild.id, nickname)
     if owner_id:
         return guild.get_member(owner_id)
-    raise NotFoundError
+    if not is_admin:
+        raise NotFoundError
 
 async def get_nicknames_by_member(session: AsyncSession, member: discord.Member) -> (str, List[str]):
     previous: List[str] = []

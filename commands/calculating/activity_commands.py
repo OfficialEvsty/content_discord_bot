@@ -45,3 +45,6 @@ def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_eve
 
 
 
+
+
+

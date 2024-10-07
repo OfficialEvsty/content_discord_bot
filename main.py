@@ -27,9 +27,10 @@ from exceptions.cancel_exception import CancelException
 from exceptions.timeout_exception import TimeoutException
 from services.nickname_service import NicknameService
 from structures.requesting.request import NicknameRequest, nickname_requests
-from ui.embeds.owner_nicknames_profile_embed import BoundingNicknamesEmbed
+from ui.embeds.owner_nicknames_profile_embed import BoundingNicknamesEmbed, BoundingNicknameAndActivityEmbed
 from ui.embeds.screenshot_embed import RedirectedScreenshotEmbed
 from utilities.custom_slash import auto_delete_webhook
+from validation.date_validation import validate_date, check_date_range
 from validation.permission_validation import user_has_permission
 
 # Блокировщик асинхронных операций, если они заняты
@@ -223,14 +224,39 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 @discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
 @bot.tree.command(name="узнать_ник", description="Узнать кому принадлежит никнейм",
                   guilds=available_guilds)
-async def check_nickname(interaction: discord.Interaction, nickname: str):
+async def check_nickname(interaction: discord.Interaction, nickname: str, date_start: str = None, date_end: str = None):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     try:
-        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname)
-        current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
-        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
-        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        is_admin = False
+        if await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "view_users_activity"):
+            is_admin = True
+        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname, is_admin)
+        if not member:
+            current = nickname
+            previous = []
+        else:
+            current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
+
+        if is_admin:
+            panel = PanelController(session)
+            dates = date_start, date_end
+            if date_end is None or date_start is None:
+                dates = None
+
+            is_dates_valid = check_date_range(date_start, date_end)
+            if not is_dates_valid:
+                return await auto_delete_webhook(interaction,
+                                                 "Введите даты в правильном формате: `DD-MM-YYYY` и выполните условие start_date < end_date",
+                                                 CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
+                                                 CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+
+            activity, salary = panel.get_member_activities_and_salary(interaction, nickname, dates)
+            embed = BoundingNicknameAndActivityEmbed(None, current, previous, activity, salary)
+            return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        else:
+            embed = BoundingNicknamesEmbed(member, current, previous)
+            return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,
                                    f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
@@ -247,7 +273,7 @@ async def profile_nickname(interaction: discord.Interaction, member: discord.Mem
     session = bot.db.get_session_sync()
     try:
         current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
-        embed = BoundingNicknamesEmbed(interaction.user, member, current, previous)
+        embed = BoundingNicknamesEmbed(member, current, previous)
         return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,

@@ -33,5 +33,13 @@
     "RAID_BOSS_3",
     "RAID_BOSS_4",
     "RAID_T2_BOSS_1"
+  ],
+  "BOSSES_SALARY":
+  [
+    "WAR_LOCATION_BOSS_0",
+    "WAR_LOCATION_BOSS_1",
+    "WAR_LOCATION_T2_BOSS_0",
+    "WAR_LOCATION_T2_BOSS_1",
+    "WAR_LOCATION_T2_BOSS_2"
   ]
 }

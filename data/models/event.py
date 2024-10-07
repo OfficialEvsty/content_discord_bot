@@ -13,8 +13,8 @@ class EventType(enum.Enum):
     RAID_BOSS_3 = "Левиафан"
     RAID_BOSS_4 = "Анталлон"
 
-    RAID_T2_BOSS_0 = "Т2 Кракен"
-    RAID_T2_BOSS_1 = "Т2 Левиафан"
+    RAID_T2_BOSS_0 = "Каллеиль"
+    RAID_T2_BOSS_1 = "Авиара"
 
     WAR_LOCATION_BOSS_0 = "Ашьяра"
     WAR_LOCATION_BOSS_1 = "Глен и Лорея"
