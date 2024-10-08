@@ -31,7 +31,7 @@ class PanelController:
         nicknames = []
         if len(nicknames_str) > 0:
             for nickname in nicknames_str:
-                nicknames.append(await nickname_service.get_nicknames(guid, nickname))
+                nicknames.extend(await nickname_service.get_nicknames(guid, nickname))
         else:
             nicknames = await nickname_service.get_nicknames(guid)
         event_service = EventService(self.session)
