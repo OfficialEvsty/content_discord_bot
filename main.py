@@ -274,7 +274,7 @@ async def check_stats(interaction: discord.Interaction, nickname: str, date_star
                                              CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                              CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
-        activity, salary = panel.get_member_activities_and_salary(interaction, nickname, dates)
+        activity, salary = await panel.get_member_activities_and_salary(interaction, nickname, dates)
         embed = BoundingNicknameAndActivityEmbed(None, current, previous, activity, salary)
         return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     except NotFoundError as e:
