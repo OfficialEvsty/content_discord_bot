@@ -58,13 +58,14 @@ class PanelController:
                                                            date2=dates[1],
                                                            nicknames_str=[nickname])
 
+        print(f"activity_dict: {activity_dict}")
         try:
             with open('commands/calculating/parameters.json') as file:
                 parameters = json.load(file)
                 activity_percent = calculate_activity(activity_dict[nickname], [EventType(event).value for event in parameters['BOSSES_ACTIVITY']])
                 salary_amount = calculate_salary_by_nickname(activity_dict[nickname], [EventType(event).value for event in parameters['BOSSES_SALARY']])
                 return activity_percent[nickname], salary_amount[nickname][0]
-        except KeyError as e:
+        except Exception as e:
             logger.error(f"Key:Error ({nickname}) : {e}")
 
 
