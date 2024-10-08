@@ -64,6 +64,8 @@ class PanelController:
                 parameters = json.load(file)
                 activity_percent = calculate_activity(activity_dict[nickname], [EventType(event).value for event in parameters['BOSSES_ACTIVITY']])
                 salary_amount = calculate_salary_by_nickname(activity_dict[nickname], [EventType(event).value for event in parameters['BOSSES_SALARY']])
+                print(activity_percent)
+                print(salary_amount)
                 return activity_percent[nickname], salary_amount[nickname][0]
         except Exception as e:
             logger.error(f"Key:Error ({nickname}) : {e}")
