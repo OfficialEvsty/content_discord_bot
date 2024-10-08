@@ -1,7 +1,7 @@
 {
   "DiscordBot": {
     "TOKEN": "MTI3OTE0Nzk1MjA3NzY3MjU1MA.GsrZwY.NDcmOrK21SD7bf4pqGCin1JCJY_BtoaeWrsofM",
-    "GUILD_IDS": [1279150958084886528, 854308042723426304]
+    "GUILD_IDS": []
   },
   "Database": {
     "name": "contentdb",

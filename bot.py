@@ -20,7 +20,7 @@ class Bot(discord.Client):
         self.db = None
 
 
-    @tasks.loop(seconds=300)
+    @tasks.loop(seconds=3600)
     async def pull_nicknames_task(self):
         await self.wait_until_ready()  # Ждем, пока бот полностью запустится
         if not self.is_closed():
@@ -42,7 +42,10 @@ class Bot(discord.Client):
             self.db.init_db()
             await self.wait_until_ready()
             if not self.synced:
-                for guild_id in self.config['DiscordBot']['GUILD_IDS']:
+                guilds = self.config['DiscordBot']['GUILD_IDS']
+                if len(guilds) == 0:
+                    await self.tree.sync()
+                for guild_id in guilds:
                     guild = discord.Object(id=guild_id)
                     await self.tree.sync(guild=guild)
                     print(f"Синхронизация команд завершена для сервера {guild_id}")

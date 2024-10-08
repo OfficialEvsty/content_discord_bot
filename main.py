@@ -224,7 +224,7 @@ async def edit_roles(interaction: discord.Interaction, admin: discord.Role, mode
 @discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
 @bot.tree.command(name="узнать_ник", description="Узнать кому принадлежит никнейм",
                   guilds=available_guilds)
-async def check_nickname(interaction: discord.Interaction, nickname: str, date_start: str = None, date_end: str = None):
+async def check_nickname(interaction: discord.Interaction, nickname: str):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     try:
@@ -244,6 +244,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str, date_s
 @discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
 @bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
                   guilds=available_guilds)
+@describe(nickname="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
 async def check_stats(interaction: discord.Interaction, nickname: str, date_start: str = None, date_end: str = None):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()

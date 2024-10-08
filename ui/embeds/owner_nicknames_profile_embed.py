@@ -16,8 +16,8 @@ class BoundingNicknamesEmbed(discord.Embed):
             author = user.name
             author_icon = user.avatar.url
         timestamp = datetime.now()
-        content = f"{EMOJIS['Emblem_Active']}|{current}\n"
-        content += f"\n".join([f"{EMOJIS['Emblem_Inactive']}|{prev}" for prev in previous])
+        content = f"{EMOJIS['Emblem_Active']} | {current}\n"
+        content += f"\n".join([f"{EMOJIS['Emblem_Inactive']} | {prev}" for prev in previous])
 
         super().__init__(title="Никнеймы", description=f">>> {content}",
                          timestamp=timestamp,
