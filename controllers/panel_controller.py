@@ -60,8 +60,8 @@ class PanelController:
         try:
             with open('commands/calculating/parameters.json') as file:
                 parameters = json.load(file)
-                activity_percent = calculate_activity(activity_dict[nickname], [event.value for event in EventType if event.name in parameters['BOSSES_ACTIVITY']])
-                salary_amount = calculate_salary_by_nickname(activity_dict[nickname], [event.value for event in EventType if event.name in parameters['BOSSES_SALARY']])
+                activity_percent = calculate_activity(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_ACTIVITY']])
+                salary_amount = calculate_salary_by_nickname(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_SALARY']])
                 print(activity_percent)
                 print(salary_amount)
                 return activity_percent[nickname], salary_amount[nickname][0]
