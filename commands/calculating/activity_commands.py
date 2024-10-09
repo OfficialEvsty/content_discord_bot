@@ -25,6 +25,7 @@ async def collect_activities_by_nickname(activities):
 def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_events: List[str]):
     uniq_events_counter = set()
     filtered_dict: Dict[Nickname, List[Activity]] = {}
+    print(f"Калькуляция activity_dict: {activity_dict}")
     for nickname, activities in activity_dict.items():
         actual_activities = []
         for activity in activities:
@@ -32,14 +33,16 @@ def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_eve
                 uniq_events_counter.add(activity.event_id)
                 actual_activities.append(activity)
         filtered_dict.setdefault(nickname, []).extend(actual_activities)
+    print(f"После фильтрации по событиям: {filtered_dict}, ники: {filtered_dict.keys()}")
 
-    activity_percent_dict: Dict[str, int] = {}
+    activity_percent_dict: Dict[str, float] = {}
     filtered_events_count = len(uniq_events_counter)
     for nickname, filtered_activities in filtered_dict.items():
         if filtered_events_count > 0:
             activity_percent_dict[nickname.name] = round((len(filtered_activities) / filtered_events_count) * 100, 2)
         else:
             activity_percent_dict.setdefault(nickname.name, 0)
+    print(f"После фильтрации по событиям: {activity_percent_dict}, ники: {activity_percent_dict.keys()}")
 
     return activity_percent_dict
 
