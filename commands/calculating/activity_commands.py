@@ -12,11 +12,8 @@ with open('commands/calculating/parameters.json') as file:
 
 async def collect_activities_by_nickname(activities):
     activity_percentage_dict = {}
-    temp = set()
     for activity in activities:
         activity_percentage_dict.setdefault(activity.nickname, []).append(activity)
-
-        temp.add(activity.event_id)
 
     # for name, visit_count in activity_percentage_dict.items():
     #     activity_percentage_dict[name] = round(visit_count / activity_boss_quantity, 2) * 100
