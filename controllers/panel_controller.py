@@ -32,13 +32,11 @@ class PanelController:
         if len(nicknames_str) > 0:
             for nickname in nicknames_str:
                 nicknames.extend(await nickname_service.get_nicknames(guid, nickname))
-                print([nick.name for nick in nicknames])
         else:
             nicknames = await nickname_service.get_nicknames(guid)
         event_service = EventService(self.session)
         ids = [nickname.id for nickname in nicknames]
         activities = await event_service.get_activities(guid, date1, date2, ids)
-        print([activity.nickname for activity in activities])
 
         activity_dict = await collect_activities_by_nickname(activities)
         return activity_dict
@@ -59,14 +57,12 @@ class PanelController:
         activity_dict = await self.get_nickname_activities(interaction,
                                                            date1=dates[0],
                                                            date2=dates[1],
-                                                           nicknames_str=[nickname])
+                                                           )
         try:
             with open('commands/calculating/parameters.json') as file:
                 parameters = json.load(file)
                 activity_percent = calculate_activity(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_ACTIVITY']])
                 salary_amount, bank_coffers = calculate_salary_by_nickname(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_SALARY']])
-                print(activity_percent)
-                print(salary_amount)
                 return activity_percent[nickname], salary_amount[nickname]
         except Exception as e:
             logger.error(f"Key:Error ({nickname}) : {e}")
