@@ -42,7 +42,7 @@ class PanelController:
         return activity_dict
 
 
-    async def get_member_activities_and_salary(self, interaction: discord.Interaction, nickname: str, dates: tuple = None):
+    async def get_member_activities_and_salary(self, interaction: discord.Interaction, nickname: str, dates: tuple = None) -> (float, float):
         if not dates:
             temp = datetime.now()
             start_month_date = datetime(temp.year, temp.month, 1)
@@ -61,10 +61,10 @@ class PanelController:
             with open('commands/calculating/parameters.json') as file:
                 parameters = json.load(file)
                 activity_percent = calculate_activity(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_ACTIVITY']])
-                salary_amount = calculate_salary_by_nickname(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_SALARY']])
+                salary_amount, bank_coffers = calculate_salary_by_nickname(activity_dict, [event.value for event in EventType if event.name in parameters['BOSSES_SALARY']])
                 print(activity_percent)
                 print(salary_amount)
-                return activity_percent[nickname], salary_amount[nickname][0]
+                return activity_percent[nickname], salary_amount[nickname]
         except Exception as e:
             logger.error(f"Key:Error ({nickname}) : {e}")
 
