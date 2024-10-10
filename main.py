@@ -241,10 +241,10 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     finally:
         await session.close()
 
-@discord.app_commands.autocomplete(nickname=all_nicknames_autocomplete)
+@discord.app_commands.autocomplete(nickname_str=all_nicknames_autocomplete)
 @bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
                   guilds=available_guilds)
-@describe(nickname="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
+@describe(nickname_str="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
 async def check_stats(interaction: discord.Interaction, nickname_str: str, date_start: str = None, date_end: str = None):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
