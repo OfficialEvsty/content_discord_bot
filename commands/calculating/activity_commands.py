@@ -46,7 +46,7 @@ def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_eve
     return activity_percent_dict
 
 
-def get_activity_entries(activities: List[(Activity, float)]) -> List[str]:
+def get_activity_entries(activities: List[tuple[Activity, float]]) -> List[str]:
     activity_entries: [str] = []
     for t in activities:
         event: Event = t[0].event
