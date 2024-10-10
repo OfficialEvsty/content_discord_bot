@@ -22,13 +22,13 @@ with open('commands/calculating/parameters.json') as file:
 class UserStatisticsView(CancelledView):
     # Словарь активностей, разбитый по датам год-месяц
     salary_calculated_activities_by_current_nickname: List[tuple[Activity, int]] = None
-    activity_by_dates: Dict[(int, int), List[Activity]] = {}
+    activity_by_dates: Dict[tuple[int, int], List[Activity]] = {}
     available_activity_entries: List[Activity]
     page_size = 20
     salary: float = 0
     activity: float = 0
     # Ключевое поле для выбора активностей
-    current_date_key: (int, int) = None
+    current_date_key: tuple[int, int] = None
     def __init__(self, user: discord.Member, nickname: Nickname, previous_nicknames, nickname_activities, message: discord.Message = None):
         super().__init__()
         self.user = user
