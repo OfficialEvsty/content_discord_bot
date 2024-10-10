@@ -21,7 +21,7 @@ with open('commands/calculating/parameters.json') as file:
 
 class UserStatisticsView(CancelledView):
     # Словарь активностей, разбитый по датам год-месяц
-    salary_calculated_activities_by_current_nickname = None
+    salary_calculated_activities_by_current_nickname: List[tuple[Activity, int]] = None
     activity_by_dates: Dict[(int, int), List[Activity]] = {}
     available_activity_entries: List[Activity]
     page_size = 20
@@ -140,7 +140,7 @@ class UserStatisticsView(CancelledView):
     async def init_ui(self, interaction: discord.Interaction):
         activity_dict = calculate_activity(self.nickname_activities, parameters['BOSSES_ACTIVITY'], self.current_date_key)
         salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, parameters['BOSSES_SALARY'], self.current_date_key)
-        entries = self.salary_calculated_activities_by_current_nickname
+        entries = get_activity_entries(self.salary_calculated_activities_by_current_nickname)
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname, self.previous_nicknames,
                                                  activity_dict.get(self.nickname.name),
                                                  salary_dict.get(self.nickname.name),

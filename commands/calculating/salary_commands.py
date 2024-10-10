@@ -38,14 +38,13 @@ def calculate_salary_by_nickname(activities_by_nickname: Dict[Nickname, List[Act
     return salary_by_nickname, bank_coffers
 
 def get_calculated_salary_activities(nickname: str, all_activities_for_chosen_dates: List[Activity]):
-    salary_by_nickname: List[(Activity, float)] = []
+    salary_by_nickname: List[tuple[Activity, float]] = []
     bank_coffers = 0
     event_counter_dict: Dict[Event, int] = {}
     for activity in all_activities_for_chosen_dates:
         event_counter_dict.setdefault(activity.event, 0)
         event_counter_dict[activity.event] += 1
     for activity in all_activities_for_chosen_dates:
-        salary_by_nickname.setdefault(activity.nickname.name, 0)
         event = activity.event
         event_type = event.type
         if event_type.name in param['SALARY']:
