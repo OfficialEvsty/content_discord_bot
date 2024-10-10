@@ -1,10 +1,11 @@
 import json
 from collections import defaultdict
+from datetime import date
 from typing import Dict, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from data.models.event import Activity, EventType
+from data.models.event import Activity, EventType, Event
 from data.models.nickname import Nickname
 
 with open('commands/calculating/parameters.json') as file:
@@ -19,18 +20,20 @@ async def collect_activities_by_nickname(activities):
     #     activity_percentage_dict[name] = round(visit_count / activity_boss_quantity, 2) * 100
     return activity_percentage_dict
 
-def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_events: List[str]):
+def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_events: List[str], date_key: (int, int) = None):
     uniq_events_counter = set()
     filtered_dict: Dict[Nickname, List[Activity]] = {}
-    print(f"Калькуляция activity_dict: {activity_dict}")
     for nickname, activities in activity_dict.items():
         actual_activities = []
         for activity in activities:
             if activity.event.type.value in chosen_events:
+                if date_key is not None:
+                    event_date: date = activity.event.datetime.date()
+                    if event_date.month != date_key[0] or event_date.year != date_key[1]:
+                        continue
                 uniq_events_counter.add(activity.event_id)
                 actual_activities.append(activity)
         filtered_dict.setdefault(nickname, []).extend(actual_activities)
-    print(f"После фильтрации по событиям: {filtered_dict}, ники: {filtered_dict.keys()}")
 
     activity_percent_dict: Dict[str, float] = {}
     filtered_events_count = len(uniq_events_counter)
@@ -39,9 +42,21 @@ def calculate_activity(activity_dict: Dict[Nickname, List[Activity]], chosen_eve
             activity_percent_dict[nickname.name] = round((len(filtered_activities) / filtered_events_count) * 100, 2)
         else:
             activity_percent_dict.setdefault(nickname.name, 0)
-    print(f"После фильтрации по событиям: {activity_percent_dict}, ники: {activity_percent_dict.keys()}")
 
     return activity_percent_dict
+
+
+def get_activity_entries(activities: List[(Activity, float)]) -> List[str]:
+    activity_entries: [str] = []
+    for t in activities:
+        event: Event = t[0].event
+        activity_entries.append(f"`{event.name.ljust(10)}` | `{str(event.datetime).center(10)}` | `{str(round(t[1], 2)) + ' :coin:' if t[1] != 0 else ''}`")
+
+    return activity_entries
+
+
+
+
 
 
 

@@ -72,10 +72,28 @@ class EventService:
 
     async def get_activities(self, guid, start_date, end_date, nickname_ids = None) -> Sequence[Activity]:
         try:
+            if start_date is None or end_date is None:
+                result = await self.session.execute(select(
+                    select(Activity)
+                    .options(joinedload(Activity.event))
+                    .join(Event)
+                    .where(Activity.guid == guid)))
+                activities = result.scalars().all()
+                return activities
             start = start_date.date()
             end = end_date.date()
             if nickname_ids is None:
-                result = await self.session.execute(select(Activity))
+                result = await self.session.execute(select(
+                    select(Activity)
+                    .options(joinedload(Activity.event))
+                    .join(Event)
+                    .where(
+                        and_(
+                            Activity.guid == guid,
+                            Event.datetime.between(start, end)
+                        )
+                    )
+                ))
             else:
                 result = await self.session.execute(
                     select(Activity)

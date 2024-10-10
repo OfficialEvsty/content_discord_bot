@@ -245,7 +245,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
 @bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
                   guilds=available_guilds)
 @describe(nickname="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
-async def check_stats(interaction: discord.Interaction, nickname: str, date_start: str = None, date_end: str = None):
+async def check_stats(interaction: discord.Interaction, nickname_str: str, date_start: str = None, date_end: str = None):
     await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     session = bot.db.get_session_sync()
     if not await user_has_permission(session, interaction.guild.get_member(interaction.user.id), "view_users_activity"):
@@ -253,13 +253,14 @@ async def check_stats(interaction: discord.Interaction, nickname: str, date_star
                                          CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                          CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
     try:
-        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname, True)
+        member = await commands.nickname_commands.get_member_by_nickname(interaction.guild, session, nickname_str, True)
         if not member:
-            current = nickname
+            current = nickname_str
             previous = []
         else:
             current, previous = await commands.nickname_commands.get_nicknames_by_member(session, member)
-
+        nickname_service = NicknameService(session)
+        nicknames = await nickname_service.get_nicknames(interaction.guild.id, nickname_str)
         panel = PanelController(session)
         dates = date_start, date_end
         is_dates_valid = True
@@ -274,12 +275,10 @@ async def check_stats(interaction: discord.Interaction, nickname: str, date_star
                                              CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                              CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
-        activity, salary = await panel.get_member_activities_and_salary(interaction, nickname, dates)
-        embed = BoundingNicknameAndActivityEmbed(None, current, previous, activity, salary)
-        return await interaction.followup.send(embed=embed, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
+        await panel.get_member_activities_and_salary(interaction, member, nicknames[0], previous)
     except NotFoundError as e:
         return await auto_delete_webhook(interaction,
-                                   f"{nickname} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
+                                   f"{nickname_str} не было привязано. Чтобы привязать никнейм используйте `/привязать_ник`",
                                    CONFIGURATION['SLASH_COMMANDS']['DeleteAfter'],
                                    CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
 
