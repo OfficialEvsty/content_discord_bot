@@ -74,11 +74,11 @@ class EventService:
         try:
             print(f"даты: {start_date, end_date}")
             if start_date is None or end_date is None:
-                result = await self.session.execute(select(
+                result = await self.session.execute(
                     select(Activity)
                     .options(joinedload(Activity.event))
                     .join(Event)
-                    .where(and_(Activity.guid == guid))))
+                    .where(and_(Activity.guid == guid)))
                 activities = result.scalars().all()
                 print(f"флаг: {activities}")
                 return activities
