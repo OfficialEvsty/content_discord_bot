@@ -23,7 +23,6 @@ class UserStatisticsView(CancelledView):
     # Словарь активностей, разбитый по датам год-месяц
     salary_calculated_activities_by_current_nickname: List[tuple[Activity, int]] = None
     activity_by_dates: Dict[tuple[int, int], List[Activity]] = {}
-    available_activity_entries: List[Activity]
     page_size = 20
     salary: float = 0
     activity: float = 0
@@ -36,6 +35,7 @@ class UserStatisticsView(CancelledView):
         self.nickname = nickname
         self.nickname_activities = nickname_activities
         self.message = message
+        self.available_activity_entries: List[Activity]
         # ПОДГОТОВКА ДАННЫХ
         self.prepare_activity_data()
 
@@ -69,7 +69,7 @@ class UserStatisticsView(CancelledView):
                 self.activity_by_dates[activity_date_key].append(activity)
 
 
-    async def select_date_key(self):
+    def select_date_key(self):
         last_year = max([keyTuple[1] for keyTuple in self.activity_by_dates.keys()])
         last_month = max([keyTuple[0] for keyTuple in self.activity_by_dates.keys() if keyTuple[1] == last_year])
         if not self.year_selector.disabled:
@@ -92,7 +92,7 @@ class UserStatisticsView(CancelledView):
         await self.update_ui(interaction)
 
     async def on_select_date(self, interaction):
-        await self.select_date_key()
+        self.select_date_key()
         self.update_controls()
         await self.update_ui(interaction)
 
