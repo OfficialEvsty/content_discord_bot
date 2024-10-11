@@ -23,6 +23,7 @@ class UserStatisticsView(CancelledView):
     # Словарь активностей, разбитый по датам год-месяц
     salary_calculated_activities_by_current_nickname: List[tuple[Activity, int]] = None
     activity_by_dates: Dict[tuple[int, int], List[Activity]] = {}
+    available_activity_entries: List[Activity]
     page_size = 20
     salary: float = 0
     activity: float = 0
@@ -35,21 +36,21 @@ class UserStatisticsView(CancelledView):
         self.nickname = nickname
         self.nickname_activities = nickname_activities
         self.message = message
-        self.available_activity_entries: List[Activity]
+
         # ПОДГОТОВКА ДАННЫХ
         self.prepare_activity_data()
 
 
         self.current_page = 0
-        self.prev_button = Button(emoji=":arrow_left:", row=0)
+        self.prev_button = Button(emoji=":arrow_left:")
         self.prev_button.callback = self.prev
-        self.next_button = Button(emoji=":arrow_right:", row=0)
+        self.next_button = Button(emoji=":arrow_right:")
         self.next_button.callback = self.next
 
-        self.month_selector = Select(row=1)
+        self.month_selector = Select()
         self.month_selector.disabled = True
         self.month_selector.callback = self.on_select_date
-        self.year_selector = Select(row=2)
+        self.year_selector = Select()
         self.year_selector.disabled = True
         self.year_selector.callback = self.on_select_date
         self.select_date_key()
