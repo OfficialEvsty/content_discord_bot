@@ -57,17 +57,15 @@ class EventAndActivityController:
             logger.error(f"Ошибка во время работы контроллера {self}: {e}")
 
 
-
-
-    async def get_activities(self, interaction: discord.Interaction, session_generator, start_date: str, end_date: str):
+    async def get_activities(self, interaction: discord.Interaction, session_generator, start_date: str = None, end_date: str = None):
         async for session in session_generator:
             guid = interaction.guild.id
             nickname_service = NicknameService(session)
             nicknames = await nickname_service.get_nicknames(guid)
             event_service = EventService(session)
             ids = [nickname.id for nickname in nicknames]
-            start = datetime.strptime(start_date, "%Y-%m-%d")
-            end = datetime.strptime(end_date, "%Y-%m-%d")
+            start = None if start_date is None else datetime.strptime(start_date, "%Y-%m-%d")
+            end = None if end_date is None else datetime.strptime(end_date, "%Y-%m-%d")
             activities = await event_service.get_activities(guid, start, end, ids)
 
             percentage_activity_dict = await calculate_activity(session, activities)

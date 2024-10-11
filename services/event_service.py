@@ -72,6 +72,7 @@ class EventService:
 
     async def get_activities(self, guid, start_date = None, end_date = None, nickname_ids = None) -> Sequence[Activity]:
         try:
+            print(f"даты: {start_date, end_date}")
             if start_date is None or end_date is None:
                 result = await self.session.execute(select(
                     select(Activity)
