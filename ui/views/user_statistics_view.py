@@ -118,7 +118,7 @@ class UserStatisticsView(CancelledView):
         end_index = min(start_index + self.page_size, start_index + (len(self.available_activity_entries) - start_index))
         self.next_button.disabled = True if end_index < len(self.available_activity_entries) else False
         self.prev_button.disabled = True if start_index > self.page_size -1 else False
-        self.month_selector.options = [SelectOption(label=str(datetime.strftime(dateKey[0], "%m")), value=dateKey[0])
+        self.month_selector.options = [SelectOption(label=str(datetime.strftime(date(year=2000, month=dateKey[0], day=20), "%m")), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
                                        if dateKey[1] == self.current_date_key[1]]
         uniq_years = set(dateKey[1] for dateKey in self.activity_by_dates.keys())
