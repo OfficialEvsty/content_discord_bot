@@ -57,13 +57,14 @@ class UserStatisticsView(CancelledView):
         if self.nickname not in self.nickname_activities:
             return
         activities_dict = self.nickname_activities
-        for nickname, activity in activities_dict.items():
-            activity_date: date = activity.event.datetime.date()
-            activity_date_key = (activity_date.month, activity_date.year)
-            if activity_date_key not in self.activity_by_dates.keys():
-                self.activity_by_dates.setdefault(activity_date_key, [])
-            activity.nickname = nickname
-            self.activity_by_dates[activity_date_key].append(activity)
+        for nickname, activities in activities_dict.items():
+            for activity in activities:
+                activity_date: date = activity.event.datetime.date()
+                activity_date_key = (activity_date.month, activity_date.year)
+                if activity_date_key not in self.activity_by_dates.keys():
+                    self.activity_by_dates.setdefault(activity_date_key, [])
+                activity.nickname = nickname
+                self.activity_by_dates[activity_date_key].append(activity)
 
         print(self.activity_by_dates)
 
