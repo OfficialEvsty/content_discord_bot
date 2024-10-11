@@ -47,8 +47,10 @@ class UserStatisticsView(CancelledView):
         self.next_button.callback = self.next
 
         self.month_selector = Select(row=1)
+        self.month_selector.disabled = True
         self.month_selector.callback = self.on_select_date
         self.year_selector = Select(row=2)
+        self.year_selector.disabled = True
         self.year_selector.callback = self.on_select_date
         self.select_date_key()
         self.update_controls()
@@ -69,7 +71,7 @@ class UserStatisticsView(CancelledView):
         print(self.activity_by_dates)
 
 
-    def select_date_key(self):
+    async def select_date_key(self, interaction):
         last_year = max([keyTuple[1] for keyTuple in self.activity_by_dates.keys()])
         last_month = max([keyTuple[0] for keyTuple in self.activity_by_dates.keys() if keyTuple[1] == last_year])
         if not self.year_selector.disabled:
@@ -80,6 +82,7 @@ class UserStatisticsView(CancelledView):
         self.available_activity_entries = self.activity_by_dates[self.current_date_key]
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                                     self.available_activity_entries)
+        await self.update_ui(interaction)
 
     async def next(self, interaction: discord.Interaction):
         self.current_page += 1
