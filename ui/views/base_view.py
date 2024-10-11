@@ -29,7 +29,7 @@ class BaseView(discord.ui.View):
 
 class CancelButton(discord.ui.Button):
     def __init__(self):
-        super().__init__(label="Закрыть", style=discord.ButtonStyle.danger, row=1)
+        super().__init__(label="Закрыть", style=discord.ButtonStyle.danger, row=2)
 
     async def callback(self, interaction: discord.Interaction):
         view: CancelledView = self.view  # Получаем представление (View), к которому относится кнопка
