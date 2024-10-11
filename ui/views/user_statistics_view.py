@@ -56,8 +56,8 @@ class UserStatisticsView(CancelledView):
     def prepare_activity_data(self):
         if self.nickname not in self.nickname_activities:
             return
-        nickname, activities = self.nickname_activities
-        for activity in activities:
+        activities_dict = self.nickname_activities
+        for nickname, activity in activities_dict.items():
             activity_date: date = activity.event.datetime.date()
             activity_date_key = (activity_date.month, activity_date.year)
             if activity_date_key not in self.activity_by_dates.keys():
