@@ -38,7 +38,7 @@ class UserStatisticsView(CancelledView):
         self.message = message
         # ПОДГОТОВКА ДАННЫХ
         self.prepare_activity_data()
-        self.select_date_key()
+
 
         self.current_page = 0
         self.prev_button = Button(emoji=":arrow_left:", row=0)
@@ -50,7 +50,7 @@ class UserStatisticsView(CancelledView):
         self.month_selector.callback = self.on_select_date
         self.year_selector = Select(row=2)
         self.year_selector.callback = self.on_select_date
-
+        self.select_date_key()
         self.update_controls()
 
     def prepare_activity_data(self):
