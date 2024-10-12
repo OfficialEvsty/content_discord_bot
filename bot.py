@@ -65,6 +65,7 @@ class Bot(discord.Client):
                 guilds = self.config['DiscordBot']['GUILD_IDS']
                 if self.config['DiscordBot']['IS_GLOBAL_SYNC']:
                     await self.tree.sync()
+                    print(f"Глобальная синхронизация команд завершена")
                 else:
                     for guild_id in guilds:
                         guild = discord.Object(id=guild_id)
