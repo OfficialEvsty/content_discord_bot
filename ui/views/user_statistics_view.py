@@ -2,7 +2,7 @@ import json
 from datetime import date, datetime
 from math import ceil
 from typing import Dict, List
-
+import locale
 import discord
 from discord import SelectOption
 from discord.ui import Button, Select
@@ -10,7 +10,7 @@ from discord.ui import Button, Select
 from commands.calculating.activity_commands import get_activity_entries, calculate_activity
 from commands.calculating.salary_commands import calculate_salary_by_nickname, get_calculated_salary_activities
 from data.configuration import CONFIGURATION
-from data.models.event import Activity
+from data.models.event import Activity, EventType
 from data.models.nickname import Nickname
 from ui.embeds.owner_nicknames_profile_embed import BoundingNicknameAndActivityEmbed, BoundingNicknamesEmbed
 from ui.views.base_view import CancelledView
@@ -71,6 +71,9 @@ class UserStatisticsView(CancelledView):
                 activity.nickname = nickname
                 self.activity_by_dates[activity_date_key].append(activity)
 
+    def translate_bosses_names(self, names: List[str]):
+        return [event.value for name in names for event in EventType if name == event.name]
+
 
     def select_date_key(self):
         last_year = max([keyTuple[1] for keyTuple in self.activity_by_dates.keys()])
@@ -83,9 +86,10 @@ class UserStatisticsView(CancelledView):
         self.available_activity_entries = self.activity_by_dates[self.current_date_key]
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
-        activity_dict = calculate_activity(self.nickname_activities, parameters['BOSSES_ACTIVITY'],
+
+        activity_dict = calculate_activity(self.nickname_activities, self.translate_bosses_names(parameters['BOSSES_ACTIVITY']),
                                            self.current_date_key)
-        salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, parameters['BOSSES_SALARY'],
+        salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, self.translate_bosses_names(parameters['BOSSES_SALARY']),
                                                             self.current_date_key)
         print(f"дикты {activity_dict}, {salary_dict}")
         self.activity = activity_dict[self.nickname.name]
@@ -114,17 +118,20 @@ class UserStatisticsView(CancelledView):
 
     async def update_ui(self, interaction: discord.Interaction):
         start_index = self.current_page * self.page_size
-        end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
+        entries_count = len(self.salary_calculated_activities_by_current_nickname)
+        end_index = min(start_index + self.page_size, start_index + (entries_count - start_index))
 
         activity_page = get_activity_entries(self.salary_calculated_activities_by_current_nickname[start_index:end_index])
         formatted_activity_page = [f"{index+1}.\t{activity_page[index]} " for index in range(len(activity_page))]
 
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname.name, self.previous_nicknames, self.activity,
                                                  self.salary, formatted_activity_page, self.current_page+1,
-                                                 ceil(end_index // self.page_size))
+                                                 ceil(entries_count // self.page_size))
 
         await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
+
+    locale.setlocale(locale.LC_ALL, "")
 
     def update_controls(self):
         self.clear_items()
@@ -133,7 +140,7 @@ class UserStatisticsView(CancelledView):
         end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
         self.next_button.disabled = False if end_index < len(self.salary_calculated_activities_by_current_nickname) else True
         self.prev_button.disabled = False if start_index > self.page_size-1 else True
-        self.month_selector.options = [SelectOption(label=datetime(year=2000, month=dateKey[0], day=20).strftime(format="%B"), value=dateKey[0])
+        self.month_selector.options = [SelectOption(label=datetime(year=2000, month=dateKey[0], day=20).strftime(format="%B (%A)"), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
                                        if dateKey[1] == self.current_date_key[1]]
         uniq_years = set(dateKey[1] for dateKey in self.activity_by_dates.keys())
