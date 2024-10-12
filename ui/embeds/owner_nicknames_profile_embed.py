@@ -19,7 +19,7 @@ class BoundingNicknamesEmbed(discord.Embed):
         content = f"{EMOJIS['Emblem_Active']} | {current}\n"
         content += f"\n".join([f"{EMOJIS['Emblem_Inactive']} | {prev}" for prev in previous])
 
-        super().__init__(title="Никнеймы", description=f">>> {content}",
+        super().__init__(title="Никнеймы", description=f"{content}",
                          timestamp=timestamp,
                          color=discord.Color.from_rgb(random.randint(0, 255),
                                                       random.randint(0, 255),
@@ -31,10 +31,10 @@ class BoundingNicknamesEmbed(discord.Embed):
 # Extended for admins
 class BoundingNicknameAndActivityEmbed(BoundingNicknamesEmbed):
     def __init__(self, user: discord.Member, current: str, previous: List[str], activity: float, salary: float,
-                 activity_entries: List[str] = List[str], start_pos: int = None, range_len: int = None):
+                 activity_entries: List[str] = List[str], current_page: int = None, pages_count: int = None):
         super().__init__(user, current, previous)
-        content = " :coin:\n".join(activity_entries)
-        self.description += f"{content}"
-        self.add_field(name="Активность", value=f"`{activity}%`", inline=True)
+        content = f"`{'БОСС'.center(15)}|{'ВРЕМЯ'.center(14)}|{'ЗАРПЛАТА'.center(8)}`\n"+" :coin:\n".join(activity_entries)
+        self.description += f"**СТАТИСТИКА** \n>>> {content}"
+        self.add_field(name="Активность", value=f"`{round(activity)}%`", inline=True)
         self.add_field(name="Зарплата", value=f"`{salary}` :coin:", inline=True)
-        self.set_footer(text=f"Записи с {start_pos}-{len(activity_entries)}. Всего записей за этот месяц {range_len}")
+        self.set_footer(text=f"Страница ({current_page}). Всего страниц: {pages_count} ")

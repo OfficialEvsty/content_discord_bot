@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 from datetime import date
+from time import strptime
 from typing import Dict, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -50,7 +51,9 @@ def get_activity_entries(activities: List[tuple[Activity, float]]) -> List[str]:
     activity_entries: [str] = []
     for t in activities:
         event: Event = t[0].event
-        activity_entries.append(f"`{event.type.value.ljust(10)}` | `{str(event.datetime).center(10)}` | `{str(round(t[1], 2)) + ' :coin:' if t[1] != 0 else ''}`")
+        activity_entries.append(f"`{event.type.value.center(15)}` |"
+                                f" `{str(event.datetime.strftime('День %d, %H:%M')).center(14)}` |"
+                                f" `{str(0).rjust(7) if t[1] == 0 else str(round(t[1], 2)).rjust(7)}`")
 
     return activity_entries
 

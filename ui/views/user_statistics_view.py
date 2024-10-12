@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime
+from math import ceil
 from typing import Dict, List
 
 import discord
@@ -24,9 +25,10 @@ class UserStatisticsView(CancelledView):
     salary_calculated_activities_by_current_nickname: List[tuple[Activity, int]] = None
     activity_by_dates: Dict[tuple[int, int], List[Activity]] = {}
     available_activity_entries: List[Activity]
-    page_size = 20
+    page_size = 15
     salary: float = 0
     activity: float = 0
+    coffers: float = 0
     # Ключевое поле для выбора активностей
     current_date_key: tuple[int, int] = None
     def __init__(self, user: discord.Member, nickname: Nickname, previous_nicknames, nickname_activities, message: discord.Message = None):
@@ -85,6 +87,7 @@ class UserStatisticsView(CancelledView):
                                            self.current_date_key)
         salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, parameters['BOSSES_SALARY'],
                                                             self.current_date_key)
+        print(f"дикты {activity_dict}, {salary_dict}")
         self.activity = activity_dict[self.nickname.name]
         self.salary = salary_dict[self.nickname.name]
 
@@ -104,6 +107,7 @@ class UserStatisticsView(CancelledView):
     async def on_select_date(self, interaction):
         await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.select_date_key()
+        self.current_page = 0
         self.update_controls()
         await self.update_ui(interaction)
 
@@ -115,10 +119,9 @@ class UserStatisticsView(CancelledView):
         activity_page = get_activity_entries(self.salary_calculated_activities_by_current_nickname[start_index:end_index])
         formatted_activity_page = [f"{index+1}.\t{activity_page[index]} " for index in range(len(activity_page))]
 
-        activities_range_length = len(self.salary_calculated_activities_by_current_nickname)
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname.name, self.previous_nicknames, self.activity,
-                                                 self.salary, formatted_activity_page, start_index+1,
-                                                 activities_range_length)
+                                                 self.salary, formatted_activity_page, self.current_page+1,
+                                                 ceil(end_index // self.page_size))
 
         await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
@@ -128,19 +131,16 @@ class UserStatisticsView(CancelledView):
         # Инициализируем все контролы на view
         start_index = self.current_page * self.page_size
         end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
-        self.next_button.disabled = True if end_index < len(self.salary_calculated_activities_by_current_nickname) else False
-        self.prev_button.disabled = True if start_index > self.page_size -1 else False
-        self.month_selector.options = [SelectOption(label=str(datetime.strftime(date(year=2000, month=dateKey[0], day=20), "%m")), value=dateKey[0])
+        self.next_button.disabled = False if end_index < len(self.salary_calculated_activities_by_current_nickname) else True
+        self.prev_button.disabled = False if start_index > self.page_size-1 else True
+        self.month_selector.options = [SelectOption(label=datetime(year=2000, month=dateKey[0], day=20).strftime(format="%B"), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
                                        if dateKey[1] == self.current_date_key[1]]
         uniq_years = set(dateKey[1] for dateKey in self.activity_by_dates.keys())
         self.year_selector.options = [SelectOption(label=str(year), value=year)
                                       for year in uniq_years]
-        print(self.children)
         self.add_item(self.prev_button)
-        print(self.children)
         self.add_item(self.next_button)
-        print(self.children)
         self.month_selector.disabled = True
         self.year_selector.disabled = True
         if len(self.month_selector.options) > 1:
@@ -149,8 +149,6 @@ class UserStatisticsView(CancelledView):
         if len(self.year_selector.options) > 1:
             self.year_selector.disabled = False
             self.add_item(self.year_selector)
-        print(self.children)
         self.add_item(self.cnl_button)
-        print(self.children)
 
 
