@@ -15,7 +15,7 @@ from data.models.nickname import Nickname
 from ui.embeds.owner_nicknames_profile_embed import BoundingNicknameAndActivityEmbed, BoundingNicknamesEmbed
 from ui.views.base_view import CancelledView
 
-locale.setlocale(locale.LC_ALL, "ru_ru.utf-8")
+locale.setlocale(locale.LC_ALL, ('ru_RU', 'UTF-8'))
 parameters = None
 with open('commands/calculating/parameters.json') as file:
     parameters = json.load(file)
