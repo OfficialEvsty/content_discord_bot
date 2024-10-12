@@ -37,7 +37,21 @@ class Bot(discord.Client):
     def startup(self):
         @self.event
         async def on_ready():
+            for guild_id in self.config['DiscordBot']['GUILD_IDS']:
+                guild = discord.Object(id=guild_id)
+
+                # Получаем все команды, зарегистрированные для этой гильдии
+                guild_commands = await self.tree.fetch_commands(guild=guild)
+
+                # Проходим по каждой команде и удаляем её
+                for command in guild_commands:
+                    self.tree.remove_command(command.name, guild=guild)
+                    print(f"Удалена команда: {command.name} в гильдии {guild_id}")
+
+            print(f"Все команды для гильдии {guild_id} удалены")
+
             global_commands: List[AppCommand] = await self.tree.fetch_commands()
+
             for command in global_commands:
                 # Удаляем каждую команду
                 await command.delete()

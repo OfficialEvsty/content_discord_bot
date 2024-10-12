@@ -241,7 +241,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     finally:
         await session.close()
 
-@discord.app_commands.autocomplete(nickname_str=all_nicknames_autocomplete)
+@discord.app_commands.autocomplete(nickname_str=available_nicknames_autocomplete)
 @bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
                   guilds=available_guilds)
 @describe(nickname_str="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
