@@ -1,8 +1,10 @@
 import json
+from typing import List
 
 import discord
 from discord import app_commands
 import schedule
+from discord.app_commands import AppCommand
 from discord.ext import tasks
 import commands.nickname_commands
 import logging
@@ -35,7 +37,11 @@ class Bot(discord.Client):
     def startup(self):
         @self.event
         async def on_ready():
-
+            global_commands: List[AppCommand] = await self.tree.fetch_commands()
+            for command in global_commands:
+                # Удаляем каждую команду
+                await command.delete()
+            print(f"Удалены все глобальные команды")
             # Инициализируем базу данных
             self.db = Database(self.config["Database"])
             # Асинхронно вызываем метод для инициализации базы данных
@@ -43,12 +49,13 @@ class Bot(discord.Client):
             await self.wait_until_ready()
             if not self.synced:
                 guilds = self.config['DiscordBot']['GUILD_IDS']
-                if len(guilds) == 0:
+                if self.config['DiscordBot']['IS_GLOBAL_SYNC']:
                     await self.tree.sync()
-                for guild_id in guilds:
-                    guild = discord.Object(id=guild_id)
-                    await self.tree.sync(guild=guild)
-                    print(f"Синхронизация команд завершена для сервера {guild_id}")
+                else:
+                    for guild_id in guilds:
+                        guild = discord.Object(id=guild_id)
+                        await self.tree.sync(guild=guild)
+                        print(f"Синхронизация команд завершена для сервера {guild_id}")
                 self.synced = True
 
             if not self.pull_nicknames_task.is_running():  # Проверяем, что задача не запущена

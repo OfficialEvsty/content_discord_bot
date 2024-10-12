@@ -122,11 +122,16 @@ class UserStatisticsView(CancelledView):
         self.month_selector.options = [SelectOption(label=str(datetime.strftime(date(year=2000, month=dateKey[0], day=20), "%m")), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
                                        if dateKey[1] == self.current_date_key[1]]
+        print(f"month options: {self.month_selector.options}")
         uniq_years = set(dateKey[1] for dateKey in self.activity_by_dates.keys())
         self.year_selector.options = [SelectOption(label=str(year), value=year)
                                       for year in uniq_years]
+        print(f"year options: {self.year_selector.options}")
+        print(self.children)
         self.add_item(self.prev_button)
+        print(self.children)
         self.add_item(self.next_button)
+        print(self.children)
         self.month_selector.disabled = True
         self.year_selector.disabled = True
         if len(self.month_selector.options) > 1:
@@ -135,7 +140,9 @@ class UserStatisticsView(CancelledView):
         if len(self.year_selector.options) > 1:
             self.year_selector.disabled = False
             self.add_item(self.year_selector)
+        print(self.children)
         self.add_item(self.cnl_button)
+        print(self.children)
 
 
 
