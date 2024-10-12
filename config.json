@@ -2,7 +2,7 @@
   "DiscordBot": {
     "TOKEN": "MTI3OTE0Nzk1MjA3NzY3MjU1MA.GsrZwY.NDcmOrK21SD7bf4pqGCin1JCJY_BtoaeWrsofM",
     "GUILD_IDS": [854308042723426304],
-    "IS_GLOBAL_SYNC": false
+    "IS_GLOBAL_SYNC": true
   },
   "Database": {
     "name": "contentdb",
