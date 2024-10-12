@@ -64,7 +64,6 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
 
     # Получаем список файлов и папок
     files = os.listdir(directory_path)
-    print(f"Файлы в: {files}")
     reader = easyocr.Reader(lang_list)
     data = reader.readtext(image_to_recognize)
 
@@ -73,7 +72,6 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
         similar_letters = json.load(file)
 
     proceed_words = clean_and_split(data)
-    print(proceed_words)
     visited_members = []
     for bbox, substring, confidence in proceed_words:
 
@@ -114,7 +112,6 @@ async def recognize_nicknames_on_image(lang_list, image_to_recognize, nicknames)
                         count -= 1
                     break
 
-    print(visited_members)
     return visited_members
 
 def find_nicknames_by_predicate(pattern, visited_members, nicknames) -> []:
