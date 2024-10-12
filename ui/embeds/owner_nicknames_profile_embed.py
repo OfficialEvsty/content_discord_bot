@@ -31,11 +31,11 @@ class BoundingNicknamesEmbed(discord.Embed):
 # Extended for admins
 class BoundingNicknameAndActivityEmbed(BoundingNicknamesEmbed):
     def __init__(self, user: discord.Member, current: str, previous: List[str], activity: float, salary: float,
-                 activity_entries: List[str] = List[str], current_page: int = None, pages_count: int = None):
+                 activity_entries: List[str] = List[str], current_page: int = None, pages_count: int = None, month: str = None):
         super().__init__(user, current, previous)
         content = f"`{'БОСС'.center(18)}|{'ВРЕМЯ'.center(14)}|{'ЗАРПЛАТА'.center(10)}`\n"+" :coin:\n".join(activity_entries)
         content += " :coin:"
-        self.description += f"\n**СТАТИСТИКА** \n>>> {content}"
+        self.description += f"\n**СТАТИСТИКА ЗА `{month.upper()}`** \n>>> {content}"
         self.add_field(name="Активность", value=f"`{round(activity)}%`", inline=True)
         self.add_field(name="Зарплата", value=f"`{round(salary)}` :coin:", inline=True)
         self.set_footer(text=f"Страница ({current_page+1}). Всего страниц: {pages_count+1} ")

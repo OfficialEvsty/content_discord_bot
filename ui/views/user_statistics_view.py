@@ -1,6 +1,7 @@
 import json
 from datetime import date, datetime
 from math import ceil
+from operator import itemgetter
 from typing import Dict, List
 import locale
 import discord
@@ -88,7 +89,7 @@ class UserStatisticsView(CancelledView):
         if not self.month_selector.disabled:
             last_month = int(self.month_selector.values[0])
         self.current_date_key = (last_month, last_year)
-        self.available_activity_entries = self.activity_by_dates[self.current_date_key]
+        self.available_activity_entries = sorted(self.activity_by_dates[self.current_date_key], key=Activity.event.datetime)
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
 
@@ -130,7 +131,8 @@ class UserStatisticsView(CancelledView):
 
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname.name, self.previous_nicknames, self.activity,
                                                  self.salary, formatted_activity_page, self.current_page,
-                                                 ceil(entries_count // self.page_size))
+                                                 ceil(entries_count // self.page_size),
+                                                 datetime(year=2000, month=self.current_date_key[0], day=20).strftime(format="%B"))
 
         await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
