@@ -31,9 +31,10 @@ class BoundingNicknamesEmbed(discord.Embed):
 # Extended for admins
 class BoundingNicknameAndActivityEmbed(BoundingNicknamesEmbed):
     def __init__(self, user: discord.Member, current: str, previous: List[str], activity: float, salary: float,
-                 activity_entries: List[str] = List[str]):
+                 activity_entries: List[str] = List[str], start_pos: int = None, range_len: int = None):
         super().__init__(user, current, previous)
         content = " :coin:\n".join(activity_entries)
         self.description += f"{content}"
         self.add_field(name="Активность", value=f"`{activity}%`", inline=True)
         self.add_field(name="Зарплата", value=f"`{salary}` :coin:", inline=True)
+        self.set_footer(text=f"Записи с {start_pos}-{len(activity_entries)}. Всего записей за этот месяц {range_len}")

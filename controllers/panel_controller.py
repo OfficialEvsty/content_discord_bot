@@ -61,7 +61,7 @@ class PanelController:
         view = UserStatisticsView(member, nickname, previous, activity_dict)
         message = await interaction.followup.send(view=view, ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         view.message = message
-        await view.init_ui(interaction)
+        await view.update_ui(interaction)
 
 
 

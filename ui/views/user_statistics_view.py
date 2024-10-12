@@ -47,10 +47,10 @@ class UserStatisticsView(CancelledView):
         self.next_button = Button(label=":arrow_right:")
         self.next_button.callback = self.next
 
-        self.month_selector = Select()
+        self.month_selector = Select(placeholder="Выберите месяц")
         self.month_selector.disabled = True
         self.month_selector.callback = self.on_select_date
-        self.year_selector = Select()
+        self.year_selector = Select(placeholder="Выберите год")
         self.year_selector.disabled = True
         self.year_selector.callback = self.on_select_date
         self.select_date_key()
@@ -74,42 +74,53 @@ class UserStatisticsView(CancelledView):
         last_year = max([keyTuple[1] for keyTuple in self.activity_by_dates.keys()])
         last_month = max([keyTuple[0] for keyTuple in self.activity_by_dates.keys() if keyTuple[1] == last_year])
         if not self.year_selector.disabled:
-            last_year = self.year_selector.values[0]
+            last_year = int(self.year_selector.values[0])
         if not self.month_selector.disabled:
-            last_month = self.month_selector.values[0]
+            last_month = int(self.month_selector.values[0])
         self.current_date_key = (last_month, last_year)
         self.available_activity_entries = self.activity_by_dates[self.current_date_key]
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
+        activity_dict = calculate_activity(self.nickname_activities, parameters['BOSSES_ACTIVITY'],
+                                           self.current_date_key)
+        salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, parameters['BOSSES_SALARY'],
+                                                            self.current_date_key)
+        self.activity = activity_dict[self.nickname.name]
+        self.salary = salary_dict[self.nickname.name]
+
 
     async def next(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.current_page += 1
         self.update_controls()
         await self.update_ui(interaction)
 
     async def prev(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.current_page -= 1
         self.update_controls()
         await self.update_ui(interaction)
 
     async def on_select_date(self, interaction):
+        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         self.select_date_key()
         self.update_controls()
         await self.update_ui(interaction)
 
 
     async def update_ui(self, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=CONFIGURATION['SLASH_COMMANDS']['IsResponsesEphemeral'])
         start_index = self.current_page * self.page_size
-        end_index = min(start_index + self.page_size, start_index + (len(self.available_activity_entries) - start_index))
+        end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
 
         activity_page = get_activity_entries(self.salary_calculated_activities_by_current_nickname[start_index:end_index])
         formatted_activity_page = [f"{index+1}.\t{activity_page[index]} " for index in range(len(activity_page))]
 
+        activities_range_length = len(self.salary_calculated_activities_by_current_nickname)
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname.name, self.previous_nicknames, self.activity,
-                                                 self.salary, formatted_activity_page)
+                                                 self.salary, formatted_activity_page, start_index+1,
+                                                 activities_range_length)
 
-        await interaction.followup.edit_message(message_id=self.message.id, embed=embed)
+        await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
 
     def update_controls(self):
@@ -142,15 +153,4 @@ class UserStatisticsView(CancelledView):
         self.add_item(self.cnl_button)
         print(self.children)
 
-
-
-    async def init_ui(self, interaction: discord.Interaction):
-        activity_dict = calculate_activity(self.nickname_activities, parameters['BOSSES_ACTIVITY'], self.current_date_key)
-        salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, parameters['BOSSES_SALARY'], self.current_date_key)
-        entries = get_activity_entries(self.salary_calculated_activities_by_current_nickname)
-        embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname, self.previous_nicknames,
-                                                 activity_dict.get(self.nickname.name),
-                                                 salary_dict.get(self.nickname.name),
-                                                 entries)
-        await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
