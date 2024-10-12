@@ -80,6 +80,23 @@ async def available_nicknames_autocomplete(
         if nickname.lower().startswith(current.lower())
        ][:25]
 
+async def nicknames_statistic_autocomplete(
+    interaction: discord.Interaction,
+    current: int) -> List[discord.app_commands.Choice[int]]:
+    session = bot.db.get_session_sync()
+    service = NicknameService(session)
+    nicknames = await service.get_nicknames(interaction.guild.id)
+    already_owned_nicknames = await service.get_owned_nicknames(interaction.guild.id, interaction.user.id)
+    items_to_delete = [nickname.name for nickname in already_owned_nicknames if nickname.is_archived]
+    items = [nickname.name for nickname in nicknames]
+    available_nicknames = list(set(items) - set(items_to_delete))
+    await session.close()
+    return [
+        discord.app_commands.Choice(name=nickname, value=nickname)
+        for nickname in sorted(available_nicknames)
+        if nickname.lower().startswith(current.lower())
+       ][:25]
+
 async def all_nicknames_autocomplete(
     interaction: discord.Interaction,
     current: int) -> List[discord.app_commands.Choice[int]]:
@@ -241,7 +258,7 @@ async def check_nickname(interaction: discord.Interaction, nickname: str):
     finally:
         await session.close()
 
-@discord.app_commands.autocomplete(nickname_str=available_nicknames_autocomplete)
+@discord.app_commands.autocomplete(nickname_str=nicknames_statistic_autocomplete)
 @bot.tree.command(name="узнать_статистику", description="Узнать статистику по никнейму",
                   guilds=available_guilds)
 @describe(nickname_str="Никнейм в игре", date_start="Дата начала", date_end="Дата конца")
