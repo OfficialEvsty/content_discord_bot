@@ -15,6 +15,7 @@ from data.models.event import Activity, EventType
 from data.models.nickname import Nickname
 from ui.embeds.owner_nicknames_profile_embed import BoundingNicknameAndActivityEmbed, BoundingNicknamesEmbed
 from ui.views.base_view import CancelledView
+from utilities.datetime_translator import translate_utc_to_moscow_datetime
 
 try:
     locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
@@ -70,6 +71,7 @@ class UserStatisticsView(CancelledView):
         activities_dict = self.nickname_activities
         for nickname, activities in activities_dict.items():
             for activity in activities:
+                activity.event.datetime = translate_utc_to_moscow_datetime(activity.event.datetime)
                 activity_date: date = activity.event.datetime.date()
                 activity_date_key = (activity_date.month, activity_date.year)
                 if activity_date_key not in self.activity_by_dates.keys():
@@ -90,10 +92,8 @@ class UserStatisticsView(CancelledView):
             last_month = int(self.month_selector.values[0])
         self.current_date_key = (last_month, last_year)
         self.available_activity_entries = sorted(self.activity_by_dates[self.current_date_key], key=lambda x: x.event.datetime)
-        print(f"все доступные записи {self.available_activity_entries}")
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
-        print(f"выбранные по нику записи: {self.salary_calculated_activities_by_current_nickname}")
 
         activity_dict = calculate_activity(self.nickname_activities, self.translate_bosses_names(parameters['BOSSES_ACTIVITY']),
                                            self.current_date_key)
