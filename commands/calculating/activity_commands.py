@@ -50,7 +50,7 @@ def get_activity_entries(activities: List[tuple[Activity, float]]) -> List[str]:
     activity_entries: [str] = []
     for t in activities:
         event: Event = t[0].event
-        activity_entries.append(f"`{event.name.ljust(10)}` | `{str(event.datetime).center(10)}` | `{str(round(t[1], 2)) + ' :coin:' if t[1] != 0 else ''}`")
+        activity_entries.append(f"`{event.type.value.ljust(10)}` | `{str(event.datetime).center(10)}` | `{str(round(t[1], 2)) + ' :coin:' if t[1] != 0 else ''}`")
 
     return activity_entries
 

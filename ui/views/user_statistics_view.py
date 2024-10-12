@@ -42,9 +42,9 @@ class UserStatisticsView(CancelledView):
 
 
         self.current_page = 0
-        self.prev_button = Button(label=":arrow_left:")
+        self.prev_button = Button(label="Предыдущая")
         self.prev_button.callback = self.prev
-        self.next_button = Button(label=":arrow_right:")
+        self.next_button = Button(label="Следующая")
         self.next_button.callback = self.next
 
         self.month_selector = Select(placeholder="Выберите месяц")
@@ -127,8 +127,8 @@ class UserStatisticsView(CancelledView):
         self.clear_items()
         # Инициализируем все контролы на view
         start_index = self.current_page * self.page_size
-        end_index = min(start_index + self.page_size, start_index + (len(self.available_activity_entries) - start_index))
-        self.next_button.disabled = True if end_index < len(self.available_activity_entries) else False
+        end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
+        self.next_button.disabled = True if end_index < len(self.salary_calculated_activities_by_current_nickname) else False
         self.prev_button.disabled = True if start_index > self.page_size -1 else False
         self.month_selector.options = [SelectOption(label=str(datetime.strftime(date(year=2000, month=dateKey[0], day=20), "%m")), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
