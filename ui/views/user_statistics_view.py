@@ -89,7 +89,7 @@ class UserStatisticsView(CancelledView):
         if not self.month_selector.disabled:
             last_month = int(self.month_selector.values[0])
         self.current_date_key = (last_month, last_year)
-        self.available_activity_entries = sorted(self.activity_by_dates[self.current_date_key], key=Activity.event.datetime)
+        self.available_activity_entries = sorted(self.activity_by_dates[self.current_date_key], key=lambda x: x.event.datetime)
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
 
