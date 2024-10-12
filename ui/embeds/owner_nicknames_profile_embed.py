@@ -33,8 +33,9 @@ class BoundingNicknameAndActivityEmbed(BoundingNicknamesEmbed):
     def __init__(self, user: discord.Member, current: str, previous: List[str], activity: float, salary: float,
                  activity_entries: List[str] = List[str], current_page: int = None, pages_count: int = None):
         super().__init__(user, current, previous)
-        content = f"    `{'БОСС'.center(15)}|{'ВРЕМЯ'.center(14)}|{'ЗАРПЛАТА'.center(10)}`\n"+" :coin:\n".join(activity_entries)
+        content = f"`{'БОСС'.center(18)}|{'ВРЕМЯ'.center(14)}|{'ЗАРПЛАТА'.center(10)}`\n"+" :coin:\n".join(activity_entries)
+        content += " :coin:"
         self.description += f"**СТАТИСТИКА** \n>>> {content}"
         self.add_field(name="Активность", value=f"`{round(activity)}%`", inline=True)
-        self.add_field(name="Зарплата", value=f"`{salary}` :coin:", inline=True)
-        self.set_footer(text=f"Страница ({current_page}). Всего страниц: {pages_count} ")
+        self.add_field(name="Зарплата", value=f"`{round(salary)}` :coin:", inline=True)
+        self.set_footer(text=f"Страница ({current_page+1}). Всего страниц: {pages_count+1} ")

@@ -15,6 +15,7 @@ from data.models.nickname import Nickname
 from ui.embeds.owner_nicknames_profile_embed import BoundingNicknameAndActivityEmbed, BoundingNicknamesEmbed
 from ui.views.base_view import CancelledView
 
+locale.setlocale(locale.LC_ALL, "ru_ru.utf-8")
 parameters = None
 with open('commands/calculating/parameters.json') as file:
     parameters = json.load(file)
@@ -91,7 +92,6 @@ class UserStatisticsView(CancelledView):
                                            self.current_date_key)
         salary_dict, coffers = calculate_salary_by_nickname(self.nickname_activities, self.translate_bosses_names(parameters['BOSSES_SALARY']),
                                                             self.current_date_key)
-        print(f"дикты {activity_dict}, {salary_dict}")
         self.activity = activity_dict[self.nickname.name]
         self.salary = salary_dict[self.nickname.name]
 
@@ -125,13 +125,11 @@ class UserStatisticsView(CancelledView):
         formatted_activity_page = [f"{index+1}.\t{activity_page[index]} " for index in range(len(activity_page))]
 
         embed = BoundingNicknameAndActivityEmbed(self.user, self.nickname.name, self.previous_nicknames, self.activity,
-                                                 self.salary, formatted_activity_page, self.current_page+1,
+                                                 self.salary, formatted_activity_page, self.current_page,
                                                  ceil(entries_count // self.page_size))
 
         await interaction.followup.edit_message(message_id=self.message.id, embed=embed, view=self)
 
-
-    locale.setlocale(locale.LC_ALL, "")
 
     def update_controls(self):
         self.clear_items()
@@ -140,7 +138,7 @@ class UserStatisticsView(CancelledView):
         end_index = min(start_index + self.page_size, start_index + (len(self.salary_calculated_activities_by_current_nickname) - start_index))
         self.next_button.disabled = False if end_index < len(self.salary_calculated_activities_by_current_nickname) else True
         self.prev_button.disabled = False if start_index > self.page_size-1 else True
-        self.month_selector.options = [SelectOption(label=datetime(year=2000, month=dateKey[0], day=20).strftime(format="%B (%A)"), value=dateKey[0])
+        self.month_selector.options = [SelectOption(label=datetime(year=2000, month=dateKey[0], day=20).strftime(format="%B"), value=dateKey[0])
                                        for dateKey in self.activity_by_dates.keys()
                                        if dateKey[1] == self.current_date_key[1]]
         uniq_years = set(dateKey[1] for dateKey in self.activity_by_dates.keys())
