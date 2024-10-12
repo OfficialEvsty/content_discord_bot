@@ -15,6 +15,9 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY requirements.txt .
 
+RUN apt-get update && apt-get install -y locales \
+    && locale-gen ru_RU.UTF-8 \
+    && update-locale LANG=ru_RU.UTF-8
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 # Создаем директорию для загрузки и хранения изображений
