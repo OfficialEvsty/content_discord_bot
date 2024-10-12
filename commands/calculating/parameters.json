@@ -29,10 +29,11 @@
   },
   "BOSSES_ACTIVITY":
   [
+    "RAID_BOSS_0",
+    "RAID_BOSS_1",
     "RAID_BOSS_2",
     "RAID_BOSS_3",
-    "RAID_BOSS_4",
-    "RAID_T2_BOSS_1"
+    "RAID_BOSS_4"
   ],
   "BOSSES_SALARY":
   [

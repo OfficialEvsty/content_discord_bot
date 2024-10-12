@@ -90,8 +90,10 @@ class UserStatisticsView(CancelledView):
             last_month = int(self.month_selector.values[0])
         self.current_date_key = (last_month, last_year)
         self.available_activity_entries = sorted(self.activity_by_dates[self.current_date_key], key=lambda x: x.event.datetime)
+        print(f"все доступные записи {self.available_activity_entries}")
         self.salary_calculated_activities_by_current_nickname, _ = get_calculated_salary_activities(self.nickname.name,
                                                                                       self.available_activity_entries)
+        print(f"выбранные по нику записи: {self.salary_calculated_activities_by_current_nickname}")
 
         activity_dict = calculate_activity(self.nickname_activities, self.translate_bosses_names(parameters['BOSSES_ACTIVITY']),
                                            self.current_date_key)
