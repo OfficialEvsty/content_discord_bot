@@ -18,7 +18,7 @@ async def get_nicknames_from_archeage_website(archeage_config):
         print(all_union_users)
         print("\n\n\n")
 
-        archeage_unicode_escape_encoding_guilds = [''.join(f'\\u{ord(char):04x}' for char in guild_name) for guild_name in archeage_config['guilds']]
+        archeage_unicode_escape_encoding_guilds = [guild_name.encode('unicode_escape').decode() for guild_name in archeage_config['guilds']]
         print(archeage_unicode_escape_encoding_guilds)
         for user in all_union_users:
             if user['guild'] in archeage_unicode_escape_encoding_guilds:
