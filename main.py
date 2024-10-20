@@ -133,10 +133,17 @@ async def execute_uploading_image(interaction, attachment):
         async for session in bot.db.get_session():
             channel_id = await get_redirect_channel_id(session, interaction.guild.id)
             channel = bot.get_channel(channel_id)
-            embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'],
-                                              event_dict['event_time'],
-                                              event_dict['event_size'], interaction.user, interaction.user.avatar.url,
-                                              event_dict['nicknames_collision'], event_dict['nicknames_manual'])
+            if interaction.user.avatar is not None:
+                embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'],
+                                                  event_dict['event_time'],
+                                                  event_dict['event_size'], interaction.user, interaction.user.avatar.url,
+                                                  event_dict['nicknames_collision'], event_dict['nicknames_manual'])
+            else:
+                embed = RedirectedScreenshotEmbed(event_dict['events_name'], event_dict['event_ref'],
+                                                  event_dict['event_time'],
+                                                  event_dict['event_size'], interaction.user,
+                                                  None,
+                                                  event_dict['nicknames_collision'], event_dict['nicknames_manual'])
             await channel.send(embed=embed)
 @bot.tree.command(name="скриншот_посещаемости", description="Загрузить скриншот рейда",
                   guilds=available_guilds)

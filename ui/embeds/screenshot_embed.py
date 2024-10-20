@@ -8,10 +8,8 @@ class RedirectedScreenshotEmbed(discord.Embed):
         if collisions is not None:
             if len(collisions) > 0:
                 self.add_field(name=f'Коллизии `{len(collisions)}`', value='```\n'+'\n'.join(collisions) + '```', inline=True)
-                print(collisions)
         if manual is not None:
             if len(manual) > 0:
                 self.add_field(name=f'Ручной ввод: `{len(manual)}`', value='```\n' + '\n'.join(manual) + '```')
-                print(manual)
         self.set_image(url=image_url)
         self.set_footer(text=f"Предоставил(а) {author}", icon_url=icon_url)

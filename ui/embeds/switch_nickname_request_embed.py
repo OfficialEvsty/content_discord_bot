@@ -11,5 +11,8 @@ class SwitchNicknameEmbed(discord.Embed):
             super().__init__(title=title, description=description, timestamp=datetime.now(), color=color)
         else:
             super().__init__(title=title, description=description, timestamp=datetime.now())
-        self.set_author(name=user.name, icon_url=user.avatar.url)
+        if user.avatar is not None:
+            self.set_author(name=user.name, icon_url=user.avatar.url)
+        else:
+            self.set_author(name=user.name)
         self.add_field(name=f"Никнейм", value=f"`{nickname}`")
