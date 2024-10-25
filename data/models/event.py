@@ -12,6 +12,7 @@ class EventType(enum.Enum):
     RAID_BOSS_2 = "Каллидис"
     RAID_BOSS_3 = "Левиафан"
     RAID_BOSS_4 = "Анталлон"
+    RAID_BOSS_5 = "Голиаф"
 
     RAID_T2_BOSS_0 = "Каллеиль"
     RAID_T2_BOSS_1 = "Авиара"
@@ -22,6 +23,10 @@ class EventType(enum.Enum):
     WAR_LOCATION_T2_BOSS_0 = "Т2 Секхмет"
     WAR_LOCATION_T2_BOSS_1 = "Т2 Ашьяра"
     WAR_LOCATION_T2_BOSS_2 = "Т2 Глен и Лорея"
+
+    TIME_SPAWN_BOSS_0 = "Морфеус"
+    TIME_SPAWN_T2_BOSS_0 = "Т2 Марли"
+
 
 # Event хранит тип события, его время и ссылку на скрин рейда
 class Event(Entity):
