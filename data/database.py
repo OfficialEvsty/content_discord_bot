@@ -109,5 +109,3 @@ class Database:
             expire_on_commit=False,
             class_=AsyncSession
         )
-        # Вызов функции для синхронизации ENUM
-        self.sync_enum_with_db(EventType, "eventtype")

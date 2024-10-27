@@ -11,6 +11,8 @@ import logging
 
 from data.configuration import CONFIGURATION
 from data.database import Database
+from data.models.event import EventType
+
 
 class Bot(discord.Client):
     def __init__(self, config):
@@ -60,6 +62,7 @@ class Bot(discord.Client):
             self.db = Database(self.config["Database"])
             # Асинхронно вызываем метод для инициализации базы данных
             self.db.init_db()
+            await self.db.sync_enum_with_db(EventType, "eventtype")
             await self.wait_until_ready()
             if not self.synced:
                 guilds = self.config['DiscordBot']['GUILD_IDS']
