@@ -41,7 +41,7 @@ class Database:
         print(db_values)
 
         # Получаем значения из Python Enum
-        enum_values = {item.value for item in enum_type}
+        enum_values = {item.name for item in enum_type}
 
         # Находим отсутствующие значения
         missing_values = enum_values - db_values
