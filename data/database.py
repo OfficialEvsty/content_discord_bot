@@ -36,7 +36,7 @@ class Database:
     async def sync_enum_with_db(self, enum_type, db_enum_name):
         sess = self.get_session_sync()
         # Получаем существующие значения ENUM из базы данных
-        result = sess.execute(f"SELECT unnest(enum_range(NULL::{db_enum_name}));")
+        result = await sess.execute(text(f"SELECT unnest(enum_range(NULL::{db_enum_name}));"))
         db_values = {row[0] for row in result.fetchall()}
 
         # Получаем значения из Python Enum
