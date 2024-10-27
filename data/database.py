@@ -47,7 +47,7 @@ class Database:
 
         # Добавляем отсутствующие значения в ENUM базы данных
         for value in missing_values:
-            await sess.execute(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';")
+            await sess.execute(text(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';"))
             logger.log(f"Добавлен отсутствующий тип ENUM '{value}' в {db_enum_name}.")
 
         await sess.commit()
