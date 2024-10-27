@@ -38,6 +38,7 @@ class Database:
         # Получаем существующие значения ENUM из базы данных
         result = await sess.execute(text(f"SELECT unnest(enum_range(NULL::{db_enum_name}));"))
         db_values = {row[0] for row in result.fetchall()}
+        print(db_values)
 
         # Получаем значения из Python Enum
         enum_values = {item.value for item in enum_type}
@@ -47,8 +48,9 @@ class Database:
 
         # Добавляем отсутствующие значения в ENUM базы данных
         for value in missing_values:
+            print(value)
             await sess.execute(text(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';"))
-            logger.log(f"Добавлен отсутствующий тип ENUM '{value}' в {db_enum_name}.")
+            logger.info(f"Добавлен отсутствующий тип ENUM '{value}' в {db_enum_name}")
 
         await sess.commit()
         await sess.close()
