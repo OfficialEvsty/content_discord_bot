@@ -12,6 +12,11 @@ from sqlalchemy.orm import sessionmaker
 from data.models.base_model import Base
 from data.models import event, member, nickname, base_model
 
+import logging
+
+from data.models.event import EventType
+
+logger = logging.getLogger('app.database')
 class OptionalError:
     pass
 
@@ -26,6 +31,25 @@ class Database:
         self.async_engine = None
         self.async_session = None
         # Создаем фабрику сессий для асинхронной работы с базой данных
+
+
+    async def sync_enum_with_db(self, enum_type, db_enum_name):
+        # Получаем существующие значения ENUM из базы данных
+        result = self.async_session.execute(f"SELECT unnest(enum_range(NULL::{db_enum_name}));")
+        db_values = {row[0] for row in result.fetchall()}
+
+        # Получаем значения из Python Enum
+        enum_values = {item.value for item in enum_type}
+
+        # Находим отсутствующие значения
+        missing_values = enum_values - db_values
+
+        # Добавляем отсутствующие значения в ENUM базы данных
+        for value in missing_values:
+            self.async_session.execute(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';")
+            logger.log(f"Добавлен отсутствующий тип ENUM '{value}' в {db_enum_name}.")
+
+        await self.async_session.commit()
 
 
     async def get_session(self) -> AsyncSession:
@@ -85,3 +109,5 @@ class Database:
             expire_on_commit=False,
             class_=AsyncSession
         )
+        # Вызов функции для синхронизации ENUM
+        self.sync_enum_with_db(EventType, "eventtype")

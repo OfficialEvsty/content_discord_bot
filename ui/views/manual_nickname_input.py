@@ -84,7 +84,7 @@ class PagedSelectorView(CancelledView):
         self.add_item(self.select)
 
         if start_index > 24:
-            prev_button = discord.ui.Button(label="Предыдущая страница", style=discord.ButtonStyle.primary)
+            prev_button = discord.ui.Button(label="◀️", style=discord.ButtonStyle.primary)
             prev_button.callback = self.prev_page
             self.add_item(prev_button)
 
@@ -95,7 +95,7 @@ class PagedSelectorView(CancelledView):
 
         # Добавляем кнопку "Следующая страница", если есть еще варианты
         if end_index < len(self.options):
-            next_button = discord.ui.Button(label="Следующая страница", style=discord.ButtonStyle.primary)
+            next_button = discord.ui.Button(label="▶️", style=discord.ButtonStyle.primary)
             next_button.callback = self.next_page
             self.add_item(next_button)
 
