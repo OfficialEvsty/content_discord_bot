@@ -34,8 +34,9 @@ class Database:
 
 
     async def sync_enum_with_db(self, enum_type, db_enum_name):
+        sess = self.get_session_sync()
         # Получаем существующие значения ENUM из базы данных
-        result = self.async_session.execute(f"SELECT unnest(enum_range(NULL::{db_enum_name}));")
+        result = sess.execute(f"SELECT unnest(enum_range(NULL::{db_enum_name}));")
         db_values = {row[0] for row in result.fetchall()}
 
         # Получаем значения из Python Enum
@@ -46,10 +47,11 @@ class Database:
 
         # Добавляем отсутствующие значения в ENUM базы данных
         for value in missing_values:
-            self.async_session.execute(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';")
+            await sess.execute(f"ALTER TYPE {db_enum_name} ADD VALUE '{value}';")
             logger.log(f"Добавлен отсутствующий тип ENUM '{value}' в {db_enum_name}.")
 
-        await self.async_session.commit()
+        await sess.commit()
+        await sess.close()
 
 
     async def get_session(self) -> AsyncSession:
