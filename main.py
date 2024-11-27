@@ -336,7 +336,7 @@ async def profile_nickname(interaction: discord.Interaction, member: discord.Mem
 bot.startup()
 
 token = CONFIGURATION['DiscordBot']['TOKEN']
-bot.run(token)
+bot.rn(token)
 
 
 
